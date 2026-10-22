@@ -180,7 +180,7 @@ var DEFAULT=[
  {n:"Bodine",p:[]},{n:"New Foundations",p:[]},{n:"Swenson",p:[]},{n:"BoysLatin",p:[]},{n:"Franklin Learning Center",p:[]}
 ];
 var STATUS=["In Team","Substitute","Out Team","Unsure"],TABS=["teams","players","standings","matchups","pairings"];
-var API_BASE="league-leaderboard-api.juggernog193-573.workers.dev"; // Replace with your deployed Cloudflare Worker URL.
+var API_BASE="https://league-leaderboard-api.juggernog193-573.workers.dev"; // Replace with your deployed Cloudflare Worker URL.
 var teams=JSON.parse(JSON.stringify(DEFAULT)),round=0,unlocked=false,adminPassword=null,live=false,pending=null,picks={},fMode="",flash=null,tt,dirty=false,savedJson=JSON.stringify(DEFAULT),savedRound=0,savedPicksJson="{}",remoteUpdatedAt=null,mA=null,mB=null,statusMessage="Connecting to shared database…",pollTimer=null;
 var $=function(i){return document.getElementById(i)};
 function esc(s){var d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML}
