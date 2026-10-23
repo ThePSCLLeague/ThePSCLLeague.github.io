@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
 <title>Scholastic Chess League</title>
 <script>try{var t=localStorage.getItem("league-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -27,11 +27,13 @@ button.sm{height:32px;padding:0 14px;font-size:13px}.icon-btn{width:38px;padding
 input,select{font:inherit;font-size:14px;height:40px;padding:0 16px;background-color:var(--surface);color:var(--text);border:1px solid var(--line-2);border-radius:var(--r-m);min-width:0;width:100%;transition:border-color .15s,box-shadow .15s}
 input::placeholder{color:var(--faint)}input[type=search]{-webkit-appearance:none;appearance:none}input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
 input:focus,select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+input:disabled{opacity:.6;cursor:not-allowed}
 select{-webkit-appearance:none;appearance:none;cursor:pointer;padding-right:38px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%238b95a3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px}
 .x{width:30px;height:30px;padding:0;border:0;background:none;color:var(--faint);border-radius:var(--r-s)}
 .x:hover{background:color-mix(in srgb,var(--out) 12%,transparent);color:var(--out)}
+.plink{color:var(--text);font-weight:600;text-decoration:none;cursor:pointer}.plink:hover{color:var(--accent);text-decoration:underline}
 
-/* top bar + pill navigation */
+/* top bar + grouped navigation */
 .topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:1400px;margin:0 auto;padding:16px 32px 14px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px 24px}
 .brand{display:flex;align-items:center;gap:14px;min-width:0}.mark{width:36px;height:36px;flex:none;color:var(--text)}
@@ -41,7 +43,9 @@ select{-webkit-appearance:none;appearance:none;cursor:pointer;padding-right:38px
 .dot{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none}.dot.live{background:var(--in)}
 .conn:has(.sync-error) .dot{background:var(--out)}.sync-ok{color:var(--muted)}.sync-error{color:var(--out)}
 .tabs{display:inline-flex;gap:4px;padding:4px;flex:none;background:var(--raised);border:1px solid var(--line);border-radius:999px}
-.brand{grid-area:1/1}.hr{grid-area:1/2}.navbar{grid-area:2/1/3/3;display:flex;gap:16px;overflow-x:auto;scrollbar-width:none}.navbar::-webkit-scrollbar{display:none}
+.brand{grid-area:1/1}.hr{grid-area:1/2}.navbar{grid-area:2/1/3/3;display:flex;gap:28px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.navbar::-webkit-scrollbar{display:none}
+.navgroup{display:flex;flex-direction:column;gap:6px;flex:none}
+.navlabel{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);padding-left:10px}
 .tab{height:34px;padding:0 18px;border:0;background:none;border-radius:999px;color:var(--muted)}
 .tab:hover{background:none;color:var(--text)}
 .tab.on{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2),var(--sh)}
@@ -53,14 +57,13 @@ select{-webkit-appearance:none;appearance:none;cursor:pointer;padding-right:38px
 .wrap{max-width:1400px;margin:0 auto;padding:40px 32px 120px}
 .section-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 28px;min-height:40px}
 .section-heading h2{font-size:26px;letter-spacing:-.025em}.section-heading+.note{margin-top:-14px}.section-count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.block{margin-top:48px}.block-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.block-head h2{font-size:16px}
 .note{color:var(--muted);font-size:14px;margin:14px 0 24px;max-width:78ch}
 .filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
 .search{position:relative;flex:1 1 260px;max-width:520px}.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--faint);pointer-events:none}
 .search input{padding-left:44px}.filters input,.filters select,.filters button,.sel select{border-radius:999px;height:40px}
-.filters select{flex:0 1 260px;width:auto}.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:24px 0 16px}
-#refreshLiveBtn.busy svg{animation:spin 1s linear infinite}
+.filters select{flex:0 1 260px;width:auto}
 .sel{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px}.sel select{flex:1 1 260px;width:auto}.sel b{font-weight:500;font-size:13px;color:var(--muted)}
+#refreshLiveBtn.busy svg{animation:spin 1s linear infinite}
 
 /* tables */
 .scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--sh)}
@@ -70,8 +73,8 @@ th,td{padding:15px 20px;text-align:left;border-bottom:1px solid var(--line);vert
 th{padding-top:13px;padding-bottom:13px;font-size:13px;font-weight:500;color:var(--muted);background:var(--raised);white-space:nowrap}
 tbody tr{transition:background .12s}tbody tr:hover{background:var(--hover)}tr:last-child>td{border-bottom:0}
 td.n,th.n{text-align:right}td b{font-weight:600}td:first-child,th:first-child{width:1%;white-space:nowrap;padding-left:24px}td:last-child,th:last-child{padding-right:24px}
-.rank-table{min-width:800px}.standings-table{min-width:680px}.pair-table{min-width:660px}
-#pBody td:nth-child(2) a{color:var(--text);text-decoration:none}#pBody td:nth-child(2) a:hover{color:var(--accent);text-decoration:underline}
+.rank-table{min-width:1060px}.standings-table{min-width:680px}.pair-table{min-width:660px}
+.rank-table td select.stsel{width:128px}
 .sch-m{display:none}.sort-head{height:auto;padding:0;gap:4px;border:0;background:none;color:inherit;font:inherit;border-radius:0}
 .sort-head:hover{background:none;color:var(--text)}.sort-head span{color:var(--faint);font-size:12px}
 .rating-cell{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
@@ -80,10 +83,24 @@ td.n,th.n{text-align:right}td b{font-weight:600}td:first-child,th:first-child{wi
 .badge{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 8px;border-radius:var(--r-s);background:var(--raised);border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:600}
 .badge.g1{--m:#c8962b}.badge.g2{--m:#8a96a8}.badge.g3{--m:#b7703f}
 .badge.g1,.badge.g2,.badge.g3{color:var(--text);background:color-mix(in srgb,var(--m) 16%,var(--surface));border-color:color-mix(in srgb,var(--m) 45%,var(--line))}
+.badge.green{color:var(--in);background:color-mix(in srgb,var(--in) 16%,var(--surface));border-color:color-mix(in srgb,var(--in) 45%,var(--line))}
+.badge.blue{color:var(--sub);background:color-mix(in srgb,var(--sub) 14%,var(--surface));border-color:color-mix(in srgb,var(--sub) 45%,var(--line))}
+.top-badge{display:inline-flex;align-items:center;height:22px;margin-left:8px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;vertical-align:middle;color:var(--unsure);background:color-mix(in srgb,var(--unsure) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--unsure) 35%,var(--line))}
 .ed{display:inline-block;min-width:56px;padding:4px 12px;border-radius:var(--r-s);border:1px solid transparent;text-align:right;cursor:text;font-weight:600}
 .ed:hover{background:var(--raised);border-color:var(--line-2)}.ed input{width:84px;height:32px;padding:0 6px;text-align:right;border-radius:var(--r-s)}
-.flash{animation:flash .9s ease}.empty,.team-roster-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:14px}
+.flash{animation:flash .9s ease}.empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:14px}
 .fav{font-weight:600}
+
+/* team standings: playoff clarity */
+.legend{display:flex;gap:10px 22px;flex-wrap:wrap;margin:0 0 16px;font-size:13px;color:var(--muted)}
+.lg{display:inline-flex;align-items:center;gap:8px}.lg i{width:12px;height:12px;border-radius:3px;background:var(--c)}
+.lg.bye{--c:var(--in)}.lg.wc{--c:var(--sub)}.lg.out{--c:var(--line-2)}
+.standings-table tr.adv-bye td{background:color-mix(in srgb,var(--in) 11%,var(--surface))}
+.standings-table tr.adv-bye td:first-child{box-shadow:inset 4px 0 0 var(--in)}
+.standings-table tr.adv-wc td{background:color-mix(in srgb,var(--sub) 6%,var(--surface))}
+.standings-table tr.adv-wc td:first-child{box-shadow:inset 4px 0 0 var(--sub)}
+.standings-table tr.adv-out td{color:var(--muted)}
+.standings-table tr.cut td{border-top:2px dashed var(--line-2)}
 
 /* status chips and selects */
 .chip{--c:var(--muted);display:inline-flex;align-items:center;height:24px;padding:0 11px;border-radius:999px;font-size:12.5px;font-weight:500;color:var(--c);background-color:color-mix(in srgb,var(--c) 11%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 28%,var(--line))}
@@ -91,22 +108,19 @@ td.n,th.n{text-align:right}td b{font-weight:600}td:first-child,th:first-child{wi
 select.stsel{width:auto;height:30px;padding:0 30px 0 13px;font-size:13px;font-weight:500;background-position:right 11px center;background-size:11px;border-radius:999px}
 select.stsel:disabled{cursor:not-allowed}
 
-/* cards, rosters */
+/* cards, manage */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:24px;box-shadow:var(--sh)}
 .card>h3{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:16px;margin-bottom:18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:20px}.stack{display:grid;gap:20px}
-#teamManagement{margin-top:4px}.card-actions{display:flex;gap:4px;align-items:center}
-.pl{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
-.pl .nm{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}.pl .nm b{font-weight:600}.pl .r{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
-.team-roster-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
-.team-roster-card{border:1px solid var(--line);border-radius:var(--r-l);background:var(--surface);overflow:hidden;box-shadow:var(--sh);min-width:0}
-.team-roster-toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px;background:var(--raised);border-bottom:1px solid var(--line)}
-.team-roster-title{font-size:16px;font-weight:600}.team-roster-meta{font-size:13px;color:var(--muted);white-space:nowrap}
-.team-player-row{display:grid;grid-template-columns:76px minmax(0,1fr) 96px 88px auto;align-items:center;gap:14px;padding:14px 24px;border-bottom:1px solid var(--line);font-size:14.5px}
-.team-player-row:last-child{border-bottom:0}.team-player-row:hover{background:var(--hover)}
-.team-player-board{font-size:13px;color:var(--muted);white-space:nowrap}.team-player-name{font-weight:600;min-width:0;overflow-wrap:anywhere}
-.team-player-rating{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.25}
-.team-player-rating small{display:block;font-size:11.5px;font-weight:400;color:var(--faint)}.team-player-status{justify-self:end}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:20px}.stack{display:grid;gap:20px}
+.card-actions{display:flex;gap:4px;align-items:center}
+.manage-search{margin-bottom:24px}
+.mteam{padding:0;overflow:hidden}
+.mteam>h3{padding:18px 24px;margin:0;background:var(--raised);border-bottom:1px solid var(--line)}
+.mrow{display:grid;grid-template-columns:minmax(0,1.6fr) 84px repeat(3,minmax(112px,1fr)) 34px;gap:10px 12px;align-items:center;padding:12px 24px;border-bottom:1px solid var(--line);font-size:14.5px}
+.mrow:last-child{border-bottom:0}.mrow:not(.mh):hover{background:var(--hover)}
+.mrow.mh{padding-top:10px;padding-bottom:10px;font-size:12.5px;font-weight:500;color:var(--muted);background:var(--surface)}
+.mrow select.stsel{width:100%}.mrate{text-align:right;font-weight:600}.mrate small{display:block;font-size:11.5px;font-weight:400;color:var(--faint)}
+.mname{min-width:0;overflow-wrap:anywhere}.mname .s{display:block}
 
 /* playoffs + pairings */
 .m{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}.m:first-of-type{border:0;margin-top:0;padding-top:0}
@@ -125,6 +139,32 @@ select.stsel:disabled{cursor:not-allowed}
 .substitution-select{display:block;width:100%;max-width:230px;height:32px;margin-top:8px;padding:0 30px 0 12px;font-size:13px;color:var(--muted);border-radius:var(--r-s)}.substitution-select:disabled{opacity:.7;cursor:not-allowed}
 .sub-used,.forfeit-tag{display:inline-flex;align-items:center;height:22px;margin-left:8px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,var(--surface))}
 .forfeit-tag{color:var(--in);background:color-mix(in srgb,var(--in) 11%,var(--surface))}
+.swiss{padding:0;overflow:hidden}
+.swiss>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:64px 1fr auto 1fr auto;gap:14px;align-items:center;padding:18px 24px;font-size:15px}
+.swiss>summary::-webkit-details-marker{display:none}.swiss>summary:hover{background:var(--hover)}
+.sw-n{font-size:12.5px;font-weight:600;color:var(--muted)}.sw-t{font-weight:600}.sw-t b{color:var(--accent);font-variant-numeric:tabular-nums}.sw-t:nth-of-type(2){text-align:right}
+.sw-vs{color:var(--faint);font-size:13px}.sw-s{font-size:13px;color:var(--muted);white-space:nowrap}
+.sw-body{padding:4px 24px 24px;border-top:1px solid var(--line)}.sw-body .vs{margin-top:18px}
+.model{padding:0;margin-bottom:24px}.model>summary{cursor:pointer;padding:16px 24px;font-weight:600;font-size:14.5px}
+.model .mb{padding:0 24px 20px;color:var(--muted);font-size:14px}.model .mb ul{margin:8px 0 0;padding-left:20px}.model .mb li{margin:4px 0}
+
+/* player profile (full screen) */
+.profile{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;animation:fade .15s ease}
+.pf-bar{position:sticky;top:0;z-index:2;background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.pf-bar-in{max-width:1100px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.pf-tabs{display:inline-flex}
+.pf-wrap{max-width:1100px;margin:0 auto;padding:32px 32px 140px}
+.pf-head{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.pf-avatar{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:600;background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
+.pf-head h2{font-size:28px;letter-spacing:-.025em}.pf-sub{color:var(--muted);font-size:14px;margin-top:4px}
+.pf-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:16px 18px;box-shadow:var(--sh)}
+.tile .k{font-size:12.5px;color:var(--muted)}.tile .v{font-size:24px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.tile .v small{font-size:12.5px;font-weight:400;color:var(--faint)}
+.pf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.ftable{width:100%;font-size:14px}.ftable td{padding:11px 0;border-bottom:1px solid var(--line)}.ftable td:first-child{width:auto;padding-left:0;white-space:normal}.ftable td:last-child{text-align:right;font-weight:600;padding-right:0;white-space:nowrap}.ftable tr:last-child td{border-bottom:0}.ftable .s{display:block;font-weight:400}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.fld{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.style-desc{margin:14px 0 0;color:var(--muted);font-size:14px}.style-meta{margin-top:10px;font-size:13px;color:var(--faint)}
 
 /* overlays */
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,10,14,.55);z-index:40}.modal.show{display:flex;animation:fade .15s}
@@ -141,15 +181,15 @@ select.stsel:disabled{cursor:not-allowed}
 
 /* responsive */
 @media(max-width:1100px){.topbar-in{padding:14px 24px}.wrap{padding:32px 24px 120px}}
-@media(max-width:900px){.team-roster-list{grid-template-columns:1fr}}
+@media(max-width:900px){.mrow{grid-template-columns:1fr 1fr;padding:14px 16px}.mrow.mh{display:none}.mname{grid-column:1/-1}.mrate{text-align:left}.mrow .x{justify-self:end}
+.swiss>summary{grid-template-columns:1fr;gap:6px}.sw-t:nth-of-type(2){text-align:left}.pf-bar-in,.pf-wrap{padding-left:16px;padding-right:16px}}
 @media(max-width:640px){
 .wrap{padding:24px 16px 120px}.card{padding:18px}.topbar{position:static}.topbar-in{grid-template-columns:1fr auto auto;padding:14px 16px}
-.hr{display:contents}#themeBtn{grid-area:1/2}#lockBtn{grid-area:1/3;width:38px;padding:0}#lockBtn .lbl{display:none}#roundBtn{grid-area:3/1/4/4;justify-self:start}.navbar{grid-area:2/1/3/4}
+.hr{display:contents}#themeBtn{grid-area:1/2}#lockBtn{grid-area:1/3;width:38px;padding:0}#lockBtn .lbl{display:none}#roundBtn{grid-area:3/1/4/4;justify-self:start}.navbar{grid-area:2/1/3/4;gap:20px}
 .conn #status{max-width:150px}.section-heading h2{font-size:22px}.search{max-width:none}.filters select{flex:1 1 100%;width:100%}
-.rank-table{min-width:0}.rank-table th,.rank-table td{padding:14px 10px}.rank-table th:nth-child(3),.rank-table td.sch,.rank-table th:nth-child(4),.rank-table td:nth-child(4){display:none}
+.rank-table{min-width:0}.rank-table th,.rank-table td{padding:14px 10px}.rank-table th:nth-child(3),.rank-table td.sch,.rank-table th:nth-child(4),.rank-table td:nth-child(4),.rank-table th:nth-child(n+8),.rank-table td:nth-child(n+8){display:none}
 .sch-m{display:block;font-size:12px;color:var(--muted);font-weight:400}.rank-table th:first-child,.rank-table td:first-child{padding-left:10px}.pair-table{min-width:600px}.standings-table{min-width:0}.standings-table th:nth-child(4),.standings-table td:nth-child(4),.standings-table th:nth-child(6),.standings-table td:nth-child(6){display:none}.standings-table th,.standings-table td{padding:14px 10px}.standings-table th:first-child,.standings-table td:first-child{padding-left:14px}.section-heading{flex-wrap:wrap;gap:6px 16px}
-.team-player-row{grid-template-columns:62px minmax(0,1fr) 78px;gap:10px;padding:14px 16px}.team-player-rating:nth-of-type(4){display:none}.team-player-status{grid-column:2/4;justify-self:start}
-.savebar{width:calc(100% - 24px);border-radius:var(--r-l);padding:8px 8px 8px 12px}}
+.savebar{width:calc(100% - 24px);border-radius:var(--r-l);padding:8px 8px 8px 12px}.pf-head h2{font-size:22px}}
 </style>
 </head>
 <body>
@@ -159,17 +199,21 @@ select.stsel:disabled{cursor:not-allowed}
 <div><h1>Scholastic Chess League</h1><div class="conn"><span class="dot" id="dot"></span><span id="status">Loading&hellip;</span></div></div>
 </div>
 <nav class="navbar" aria-label="Sections">
-<div class="tabs" role="group" aria-label="League">
-<button class="tab on" data-tab="standings" type="button">Standings</button>
+<div class="navgroup"><div class="navlabel">Standings</div>
+<div class="tabs" role="group" aria-label="Standings">
+<button class="tab on" data-tab="players" type="button">Players</button>
+<button class="tab" data-tab="standings" type="button">Teams</button>
 <button class="tab" data-tab="playoffs" type="button">Playoffs</button>
+</div></div>
+<div class="navgroup"><div class="navlabel">Predictions</div>
+<div class="tabs" role="group" aria-label="Predictions">
 <button class="tab" data-tab="pairings" type="button">Pairings</button>
 <button class="tab" data-tab="matchups" type="button">Matchups</button>
-</div>
-<div class="tabs" role="group" aria-label="Rosters">
-<button class="tab" data-tab="players" type="button">Players</button>
-<button class="tab" data-tab="teams" type="button">Teams</button>
-<button class="tab" data-tab="manage" type="button">Manage</button>
-</div>
+</div></div>
+<div class="navgroup"><div class="navlabel">Manage</div>
+<div class="tabs" role="group" aria-label="Manage">
+<button class="tab" data-tab="manage" type="button">Players &amp; teams</button>
+</div></div>
 </nav>
 <div class="hr">
 <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch color theme" title="Switch color theme"></button>
@@ -178,8 +222,8 @@ select.stsel:disabled{cursor:not-allowed}
 </div>
 </div></header>
 <main class="wrap">
-<section class="hidden" id="players">
-<div class="section-heading"><h2>Player rankings</h2><span class="section-count"><span id="rankPlayerCount">&mdash;</span> players</span></div>
+<section class="enter" id="players">
+<div class="section-heading"><h2>Player standings</h2><span class="section-count"><span id="rankPlayerCount">&mdash;</span> players</span></div>
 <div class="filters">
 <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input aria-label="Search players" id="rankSearch" placeholder="Search players, schools or US Chess IDs" type="search"/></div>
 <select aria-label="Filter by school" id="rankSchool"><option value="">All schools</option></select>
@@ -190,21 +234,17 @@ select.stsel:disabled{cursor:not-allowed}
 <th class="n"><button class="sort-head" data-sort="official" type="button">Official rating <span>&varr;</span></button></th>
 <th class="n"><button class="sort-head" data-sort="live" type="button">Live rating <span>&darr;</span></button></th>
 <th class="n"><button class="sort-head" data-sort="points" type="button">Points <span>&varr;</span></button></th>
+<th>Play style</th><th>Time</th>
 </tr></thead><tbody id="pBody"></tbody></table></div>
-<p class="note" id="liveRatingNote">Ratings refresh automatically while this page is open. Use Sync to import players and save updates.</p>
+<p class="note" id="liveRatingNote">Ratings refresh automatically while this page is open. Click a player to open their full profile.</p>
 </section>
-<section class="hidden" id="teams">
-<div class="section-heading"><h2>Teams</h2><span class="section-count" id="rankTeamCount">&mdash;</span></div>
-<div class="filters"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input aria-label="Search teams" id="teamRankSearch" placeholder="Search teams" type="search"/></div></div>
-<div id="teamRosterList" class="team-roster-list"></div>
-</section>
-<section class="hidden" id="manage">
-<div class="section-heading"><h2>Manage rosters</h2><button class="primary" id="addTeamBtn" type="button">+ Add team</button></div>
-<p class="note">Add or remove teams and players and set each player&rsquo;s status. Editing requires administrator sign-in; changes are saved from the bar at the bottom.</p>
-<div id="teamGrid"></div>
-</section>
-<section class="enter" id="standings">
-<div class="section-heading"><h2 id="sTitle">Standings</h2><span class="section-count">Top 6 make the playoffs &middot; seeds 1&ndash;2 get byes</span></div>
+<section class="hidden" id="standings">
+<div class="section-heading"><h2 id="sTitle">Team standings</h2><span class="section-count">Top 6 advance to the playoffs</span></div>
+<div class="legend">
+<span class="lg bye"><i></i>Seeds 1&ndash;2 &middot; Advance with a bye to the semifinals</span>
+<span class="lg wc"><i></i>Seeds 3&ndash;6 &middot; Advance to the wildcard round</span>
+<span class="lg out"><i></i>Seed 7+ &middot; Outside the playoff cutoff</span>
+</div>
 <div class="scroll"><table class="standings-table"><thead><tr>
 <th>Rank</th><th>Team</th><th class="n">T-4 points</th><th class="n">Team points</th><th class="n">Avg rating</th><th class="n">Players</th>
 </tr></thead><tbody id="sBody"></tbody></table></div>
@@ -216,8 +256,8 @@ select.stsel:disabled{cursor:not-allowed}
 <div id="bracket"></div>
 </section>
 <section class="hidden" id="pairings">
-<div class="section-heading"><h2>Board-by-board pairings</h2></div>
-<p class="note">Predicted board results, win odds, forfeits and matchup-specific substitutions. Pairings appear as each round becomes available.</p>
+<div class="section-heading"><h2 id="swTitle">Swiss pairings</h2></div>
+<p class="note">Predicted pairings for the next round, built from each player&rsquo;s own league points: players are grouped by points, then the top half of each group plays the bottom half by rating. Opponents are swapped where needed so teammates do not meet.</p>
 <div id="pairOut"></div>
 </section>
 <section class="hidden" id="matchups">
@@ -225,7 +265,26 @@ select.stsel:disabled{cursor:not-allowed}
 <div class="sel"><select aria-label="First team" id="mA"></select><b>vs</b><select aria-label="Second team" id="mB"></select></div>
 <div id="mOut"></div>
 </section>
+<section class="hidden" id="manage">
+<div class="section-heading"><h2>Manage players &amp; teams</h2><button class="primary" id="addTeamBtn" type="button">+ Add team</button></div>
+<p class="note">Search for a team to view and edit its roster. Editing requires administrator sign-in; changes are saved from the bar at the bottom.</p>
+<div class="search manage-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input aria-label="Search teams to edit" id="manageSearch" placeholder="Search for a team to edit" type="search" autocomplete="off"/></div>
+<div id="manageOut" class="stack"></div>
+</section>
 </main>
+
+<div class="profile hidden" id="profile" role="dialog" aria-modal="true" aria-label="Player profile">
+<div class="pf-bar"><div class="pf-bar-in">
+<button id="pfClose" type="button">&larr; Back</button>
+<div class="tabs pf-tabs" role="group" aria-label="Profile sections">
+<button class="tab on" data-pftab="stats" type="button">Stats</button>
+<button class="tab" data-pftab="style" type="button">Play style</button>
+<button class="tab" data-pftab="edit" type="button">Edit player</button>
+</div>
+</div></div>
+<div class="pf-wrap" id="profileBody"></div>
+</div>
+
 <div class="modal" id="pwModal" role="dialog" aria-modal="true" aria-labelledby="pwTitle"><div class="card">
 <h3 id="pwTitle">Administrator sign-in</h3>
 <input autocomplete="off" id="pwInput" placeholder="Password" type="password"/>
@@ -237,6 +296,8 @@ select.stsel:disabled{cursor:not-allowed}
 <h3 id="fTitle"></h3>
 <select aria-label="Team" id="fTeam"></select>
 <input aria-label="Name" id="fName" placeholder="Name" type="text"/>
+<input aria-label="US Chess link or ID" id="fUscf" placeholder="US Chess profile link or ID (optional)" type="text" autocomplete="off"/>
+<select aria-label="Grade" id="fGrade"><option value="">Grade (optional)</option><option value="9">9th grade</option><option value="10">10th grade</option><option value="11">11th grade</option><option value="12">12th grade</option></select>
 <select aria-label="Status" id="fStatus"><option>In Team</option><option>Substitute</option><option>Out Team</option><option>Unsure</option></select>
 <div class="err" id="fErr"></div>
 <div class="modal-actions"><button id="fCancel" type="button">Cancel</button><button id="fAnother" type="button">Add &amp; add another</button><button class="primary" id="fOk" type="button">Add</button></div>
@@ -244,7 +305,7 @@ select.stsel:disabled{cursor:not-allowed}
 <div class="savebar" id="savebar"><span>Unsaved changes</span><button id="discardBtn" type="button">Discard</button><button id="saveBtn" type="button">Save</button><button class="primary" id="saveRound" type="button"></button></div>
 <div class="toast" id="toast" role="status"></div>
 <script>
-   (function(){
+(function(){
 var DEFAULT=[
  {n:"Central High School",p:[]},{n:"Julia R. Masterman",p:[]},{n:"Northeast High School",p:[]},
  {n:"G.W Carver High School",p:[]},{n:"George Washington High School",p:[]},
@@ -254,9 +315,24 @@ var DEFAULT=[
   {n:"Johnfer Quispe",r:1128,pt:0,s:"In Team"},{n:"Faadi Garcia",r:1587,pt:0,s:"Out Team"}]},
  {n:"Bodine",p:[]},{n:"New Foundations",p:[]},{n:"Swenson",p:[]},{n:"BoysLatin",p:[]},{n:"Franklin Learning Center",p:[]}
 ];
-var STATUS=["In Team","Substitute","Out Team","Unsure"],TABS=["standings","playoffs","pairings","matchups","players","teams","manage"];
+var STATUS=["In Team","Substitute","Out Team","Unsure"],TABS=["players","standings","playoffs","pairings","matchups","manage"];
+var STYLES=["Positional","Defense","Tactical","Attacking"],TIMES=["Fast","Efficient","Slow"];
+var STYLE_INFO={
+ Positional:"Plays for structure, space and long-term plans, slowly squeezing the opponent.",
+ Defense:"Solid and resilient. Absorbs pressure, defends accurately and counterattacks.",
+ Tactical:"Looks for combinations, forcing lines and concrete calculation.",
+ Attacking:"Seeks the initiative early, going after the king and complicating the position."};
+var TIME_INFO={
+ Fast:"Moves quickly and builds a clock lead, but can blunder when rushing.",
+ Efficient:"Balanced clock use: spends time on critical moments and plays the rest smoothly.",
+ Slow:"Thinks long on most moves. Accurate when time allows, but prone to time trouble."};
+// Edge (in rating points) the row style/time has against the column style/time.
+var STYLE_EDGE={Tactical:{Positional:6,Defense:-6},Positional:{Attacking:6,Tactical:-6},Attacking:{Defense:6,Positional:-6},Defense:{Tactical:6,Attacking:-6}};
+var TIME_EDGE={Efficient:{Fast:4,Slow:4},Fast:{Efficient:-4,Slow:3},Slow:{Efficient:-4,Fast:-3}};
 var API_BASE="https://league-leaderboard-api.juggernog193-573.workers.dev";
-var teams=JSON.parse(JSON.stringify(DEFAULT)),round=0,unlocked=false,adminPassword=null,live=false,pending=null,picks={},fMode="",flash=null,tt,checkChesserPlayers=[],ratingLookupAt=null,ratingLookupStatus="Not checked yet",ratingLookupBusy=false,dirty=false,savedJson=JSON.stringify(DEFAULT),savedRound=0,savedPicksJson="{}",remoteUpdatedAt=null,mA=null,mB=null,statusMessage="Connecting to shared database…",pollTimer=null;
+var CC_URL="https://redcomp16-checkchesser-backend.hf.space/api/players/";
+var teams=JSON.parse(JSON.stringify(DEFAULT)),round=0,unlocked=false,adminPassword=null,live=false,pending=null,picks={},fMode="",flash=null,tt,checkChesserPlayers=[],ccIndex=null,ratingLookupAt=null,ratingLookupStatus="Not checked yet",ratingLookupBusy=false,dirty=false,savedJson=JSON.stringify(DEFAULT),savedRound=0,savedPicksJson="{}",remoteUpdatedAt=null,mA=null,mB=null,statusMessage="Connecting to shared database…",pollTimer=null;
+var topSet=new Set(),topHasPts=false,profileRef=null,profileTab="stats",profileDirty=false;
 var $=function(i){return document.getElementById(i)};
 function svg(p){return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'}
 var ICON={
@@ -282,11 +358,57 @@ async function apiFetch(path,options){
   if(!response.ok){var err=new Error(body.error||("HTTP "+response.status));err.status=response.status;throw err}
   return body;
 }
-function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show")},1600)}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show")},2200)}
 function team(n){return teams.filter(function(t){return t.n===n})[0]}
+function stClass(s){return s==="In Team"?"in":s==="Out Team"?"out":s==="Substitute"?"sub":"unsure"}
+function parseUscf(v){var m=String(v||"").match(/(\d{5,9})/);return m?m[1]:""}
+function profIdx(p){for(var ti=0;ti<teams.length;ti++){var pi=teams[ti].p.indexOf(p);if(pi>=0)return ti+":"+pi}return""}
 
-/* ---------- scoring & odds ---------- */
+/* ---------- player data helpers ---------- */
 function officialRating(p){var f=lookupPlayer(p),v=f?Number(f.official_rating):Number(p&&p.r);return Number.isFinite(v)&&v>0?v:0}
+function liveOf(p){var f=lookupPlayer(p),v=f?Number(f.live_rating):Number(p&&p.liveRating);return Number.isFinite(v)&&v>0?v:0}
+function curRating(p){var l=liveOf(p);return l>0?l:officialRating(p)}
+function gradeText(p){var g=p&&p.grade!=null&&String(p.grade).trim()!==""?p.grade:null;if(g===null){var f=lookupPlayer(p);g=f&&f.grade!=null&&String(f.grade).trim()!==""?f.grade:null}return g===null?"":String(g)}
+function gradeOf(p){var m=gradeText(p).match(/\d+/),n=m?Number(m[0]):0;return n>=9&&n<=12?n:0}
+function topBadge(){return '<span class="top-badge" title="'+(topHasPts?"Top 15 in both rating and league points":"Top 15 by rating")+'">&#9733; Top player</span>'}
+function refreshTop(){
+  var all=[];teams.forEach(function(t){t.p.forEach(function(p){all.push(p)})});
+  var rated=all.filter(function(p){return curRating(p)>0}).sort(function(a,b){return curRating(b)-curRating(a)});
+  var rcut=rated.length>15?curRating(rated[14]):0;
+  var rs=new Set(rated.filter(function(p){return curRating(p)>=rcut}));
+  var scored=all.filter(function(p){return num(p.pt)>0}).sort(function(a,b){return num(b.pt)-num(a.pt)});
+  topHasPts=scored.length>0;
+  var pcut=scored.length>15?num(scored[14].pt):0;
+  var ps=new Set(scored.filter(function(p){return num(p.pt)>=pcut}));
+  topSet=new Set();rs.forEach(function(p){if(!topHasPts||ps.has(p))topSet.add(p)});
+}
+function rankInfo(p){
+  var all=[];teams.forEach(function(t){t.p.forEach(function(x){all.push(x)})});
+  var byR=all.filter(function(x){return curRating(x)>0}).sort(function(a,b){return curRating(b)-curRating(a)}),ri=byR.indexOf(p);
+  var byP=all.filter(function(x){return num(x.pt)>0}).sort(function(a,b){return num(b.pt)-num(a.pt)}),pi=byP.indexOf(p);
+  return {r:ri>=0?ri+1:null,rn:byR.length,p:pi>=0?pi+1:null,pn:byP.length};
+}
+
+/* ---------- prediction model ---------- */
+// Strength = live rating (or official) + momentum from the live-vs-official delta
+// + league-points form + a very small grade adjustment. Play style and time management
+// then add small matchup-specific edges. "Wildcard" players (no delta) widen the odds.
+function parts(p){
+  var off=officialRating(p),lv=liveOf(p),base=lv>0?lv:(off>0?off:1000);
+  var delta=(lv>0&&off>0)?Math.round(lv-off):null;
+  var momentum=delta===null?0:Math.max(-120,Math.min(120,delta))*0.4;
+  var pts=Math.min(Math.max(num(p.pt),0),8)*7.5;
+  var g=gradeOf(p),grade=g===9?-6:g===10?-3:g===11?3:0;
+  var wild=delta===0?1:(delta===null?0.5:0);
+  if(g===12)wild+=0.25;
+  return {base:base,off:off,live:lv,delta:delta,momentum:momentum,pts:pts,grade:grade,g:g,wild:Math.min(1.25,wild),strength:base+momentum+pts+grade};
+}
+function playerProb(a,b){
+  var pa=parts(a),pb=parts(b);
+  var diff=pa.strength-pb.strength+((STYLE_EDGE[a.style]&&STYLE_EDGE[a.style][b.style])||0)+((TIME_EDGE[a.time]&&TIME_EDGE[a.time][b.time])||0);
+  var wild=(pa.wild+pb.wild)/2,scale=400*(1+0.7*wild);
+  return 1/(1+Math.pow(10,-diff/scale));
+}
 function stats(t){
   var ps=t.p.filter(function(x){return x.s==="In Team"});
   var pts=ps.map(function(x){return num(x.pt)}).sort(function(a,b){return b-a});
@@ -297,52 +419,55 @@ function ranked(){
   return teams.map(stats).sort(function(a,b){return b.t4-a.t4||a.name.localeCompare(b.name)})
     .map(function(x,i){x.seed=i+1;return x});
 }
-function prob(a,b){
-  var pe=(a.avg&&b.avg)?1/(1+Math.pow(10,(b.avg-a.avg)/400)):null;
-  var pp=(a.t4+b.t4>0)?(a.t4+1)/(a.t4+b.t4+2):null;
-  if(pe!==null&&pp!==null)return (pe+pp)/2;
-  return pe!==null?pe:pp!==null?pp:0.5;
-}
 function resultKey(key){return "result:"+key}
+function matchKeyFor(x,y){return "manual:"+[x,y].sort().join("|")}
 function match(key,a,b){
-  var pa=prob(a,b),fav=pa>0.5||(pa===0.5&&a.seed<b.seed)?a:b,confirmed=picks[resultKey(key)];
+  var A=team(a.name),B=team(b.name);
+  var pa=(A&&B)?pairing(A,B,matchKeyFor(a.name,b.name)).win:0.5;
+  var fav=pa>0.5||(pa===0.5&&a.seed<b.seed)?a:b,confirmed=picks[resultKey(key)];
   var w=confirmed===a.name?a:confirmed===b.name?b:fav;
   return {key:key,a:a,b:b,pa:pa,fav:fav,w:w,picked:confirmed===a.name||confirmed===b.name};
 }
+function seedOf(n){var x=ranked().filter(function(y){return y.name===n})[0];return x?x.seed:99}
+function withSeed(name){var t=team(name);return t?Object.assign({},stats(t),{seed:seedOf(name)}):null}
 function bracket(){
   var r=ranked();if(r.length<6)return null;
   var w1=match("wc1",r[2],r[5]),w2=match("wc2",r[3],r[4]);
   var wc1=picks[resultKey("wc1")],wc2=picks[resultKey("wc2")];
-  var winner1=wc1?team(wc1):null,winner2=wc2?team(wc2):null;
-  var s1=wc1&&winner1?match("sf1",r[0],Object.assign({},stats(winner1),{seed:ranked().filter(function(x){return x.name===winner1.n})[0]?.seed||6})):null;
-  var s2=wc2&&winner2?match("sf2",r[1],Object.assign({},stats(winner2),{seed:ranked().filter(function(x){return x.name===winner2.n})[0]?.seed||6})):null;
+  var s1=wc1&&team(wc1)?match("sf1",r[0],withSeed(wc1)):null;
+  var s2=wc2&&team(wc2)?match("sf2",r[1],withSeed(wc2)):null;
   var sf1=picks[resultKey("sf1")],sf2=picks[resultKey("sf2")];
-  var f=sf1&&sf2&&team(sf1)&&team(sf2)?match("f",Object.assign({},stats(team(sf1)),{seed:ranked().filter(function(x){return x.name===sf1})[0]?.seed||1}),Object.assign({},stats(team(sf2)),{seed:ranked().filter(function(x){return x.name===sf2})[0]?.seed||2})):null;
+  var f=sf1&&sf2&&team(sf1)&&team(sf2)?match("f",withSeed(sf1),withSeed(sf2)):null;
   return {w1:w1,w2:w2,s1:s1,s2:s2,f:f};
 }
+function subKey(matchKey,teamName,board){return "sub:"+encodeURIComponent(matchKey)+":"+encodeURIComponent(teamName)+":"+board}
+// Each board entry keeps its original slot (so substitution menus stay attached to the
+// regular player) but the final lineup is always sorted highest to lowest rated.
 function boards(t,matchKey,slots){
   var active=t.p.filter(function(x){return x.s==="In Team"}).sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)});
   var max=Math.max(active.length,slots||0),out=[];
   for(var i=0;i<max;i++){
-    var chosen=picks[subKey(matchKey,t.n,i+1)],sub=chosen&&t.p.filter(function(x){return x.n===chosen&&x.s==="Substitute"})[0];
-    out.push(sub?Object.assign({},sub,{_isSubstitute:true,_boardIndex:i+1}):(active[i]?Object.assign({},active[i],{_boardIndex:i+1}):null));
+    var chosen=matchKey?picks[subKey(matchKey,t.n,i+1)]:null,sub=chosen&&t.p.filter(function(x){return x.n===chosen&&x.s==="Substitute"})[0],base=active[i]||null;
+    out.push({slot:i+1,base:base,p:sub||base,sub:!!sub});
   }
+  out.sort(function(x,y){
+    if(!x.p&&!y.p)return x.slot-y.slot;if(!x.p)return 1;if(!y.p)return -1;
+    return officialRating(y.p)-officialRating(x.p)||num(y.p.pt)-num(x.p.pt)||x.p.n.localeCompare(y.p.n);
+  });
   return out;
 }
-function subKey(matchKey,teamName,board){return "sub:"+encodeURIComponent(matchKey)+":"+encodeURIComponent(teamName)+":"+board}
-function exp(ra,rb){return(!ra||!rb)?0.5:1/(1+Math.pow(10,(rb-ra)/400))}
 function phi(z){var t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p}
 function pairing(A,B,matchKey){
   var baseA=boards(A),baseB=boards(B),selectedSlots=0;
-  Object.keys(picks).forEach(function(k){var prefix="sub:"+encodeURIComponent(matchKey)+":";if(k.indexOf(prefix)===0){var parts=k.split(":");selectedSlots=Math.max(selectedSlots,Number(parts[parts.length-1])||0)}});
+  Object.keys(picks).forEach(function(k){var prefix="sub:"+encodeURIComponent(matchKey)+":";if(k.indexOf(prefix)===0){var parts_=k.split(":");selectedSlots=Math.max(selectedSlots,Number(parts_[parts_.length-1])||0)}});
   var n=Math.max(baseA.length,baseB.length,selectedSlots),a=boards(A,matchKey,n),b=boards(B,matchKey,n),rows=[],meanA=0,variance=0,scoreA=0,scoreB=0;
   for(var i=0;i<n;i++){
-    var aa=a[i]||null,bb=b[i]||null;
+    var ea=a[i],eb=b[i],aa=ea&&ea.p?ea:null,bb=eb&&eb.p?eb:null;
     if(!aa&&!bb)continue;
-    if(aa&&!bb){rows.push({a:aa,b:null,p:1,forfeit:"A",board:i+1});meanA+=1;scoreA++;continue}
-    if(!aa&&bb){rows.push({a:null,b:bb,p:0,forfeit:"B",board:i+1});scoreB++;continue}
-    var pr=exp(officialRating(aa),officialRating(bb)),aWins=pr>=0.5;
-    rows.push({a:aa,b:bb,p:pr,board:i+1,predictedWinner:aWins?"A":"B"});meanA+=pr;variance+=pr*(1-pr);
+    if(aa&&!bb){rows.push({a:aa,b:null,ea:ea,eb:eb,p:1,forfeit:"A",board:i+1});meanA+=1;scoreA++;continue}
+    if(!aa&&bb){rows.push({a:null,b:bb,ea:ea,eb:eb,p:0,forfeit:"B",board:i+1});scoreB++;continue}
+    var pr=playerProb(aa.p,bb.p),aWins=pr>=0.5;
+    rows.push({a:aa,b:bb,ea:ea,eb:eb,p:pr,board:i+1,predictedWinner:aWins?"A":"B"});meanA+=pr;variance+=pr*(1-pr);
     if(aWins)scoreA++;else scoreB++;
   }
   var total=scoreA+scoreB,win=variance>0?phi((meanA-total/2)/Math.sqrt(variance)):(scoreA>scoreB?1:scoreA<scoreB?0:0.5);
@@ -351,37 +476,28 @@ function pairing(A,B,matchKey){
 
 /* ---------- render ---------- */
 function ed(t,i,f,v){return '<span class="ed'+(f==="pt"?" rank-point":"")+'" data-t="'+t+'" data-i="'+i+'" data-f="'+f+'">'+v+'</span>'}
-function chip(t,i,s){var c=s==="In Team"?"in":s==="Out Team"?"out":s==="Substitute"?"sub":"unsure";return '<select class="chip stsel '+c+'" data-st="'+t+':'+i+'">'+STATUS.map(function(o){return '<option'+(o===s?' selected':'')+'>'+o+'</option>'}).join("")+'</select>'}
-function renderTeams(){
-  var query=normalizePlayerName($("teamRankSearch")?$("teamRankSearch").value:"");
-  var filtered=teams.filter(function(t){return !query||normalizePlayerName(t.n).indexOf(query)>=0});
-  var count=$("rankTeamCount");if(count)count.textContent=teams.length.toLocaleString()+" teams";
-  var list=$("teamRosterList");
-  if(list){
-    list.innerHTML=filtered.map(function(t){
-      var realIndex=teams.indexOf(t);
-      var active=t.p.filter(function(p){return p.s==="In Team"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)});
-      var subs=t.p.filter(function(p){return p.s==="Substitute"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||a.n.localeCompare(b.n)});
-      var unsure=t.p.filter(function(p){return p.s!=="In Team"&&p.s!=="Substitute"&&p.s!=="Out Team"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||a.n.localeCompare(b.n)});
-      var out=t.p.filter(function(p){return p.s==="Out Team"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||a.n.localeCompare(b.n)});
-      function rows(players,label){return players.map(function(p,i){
-        var pi=t.p.indexOf(p),found=lookupPlayer(p),official=officialRating(p),liveRating=found&&Number(found.live_rating)>0?Number(found.live_rating):(Number(p.liveRating)>0?Number(p.liveRating):0);
-        var board=label==="Board"?"Board "+(i+1):label+(i+1),status=p.s||"Unsure";
-        var statusClass=status==="In Team"?"status-active":status==="Substitute"?"status-sub":status==="Out Team"?"status-out":"status-unsure";
-        return '<div class="team-player-row"><span class="team-player-board">'+board+'</span><span class="team-player-name">'+esc(p.n)+'</span><span class="team-player-rating">'+(official>0?official:"Unrated")+' <small>official</small></span><span class="team-player-rating">'+(liveRating>0?liveRating:"Unrated")+' <small>live</small></span><span class="team-player-status"><select aria-label="Team status for '+esc(p.n)+'" class="team-player-status-select chip stsel '+statusClass+'" data-st="'+realIndex+':'+pi+'"'+(unlocked?'':' title="Unlock admin editing to change status"')+'>'+STATUS.map(function(o){return '<option'+(o===status?' selected':'')+'>'+o+'</option>'}).join('')+'</select></span></div>';
-      }).join("")}
-      var content=rows(active,"Board")+rows(subs,"Sub ")+rows(unsure,"Unassigned ")+rows(out,"Out ");
-      return '<article class="team-roster-card"><div class="team-roster-toggle"><span class="team-roster-title">'+esc(t.n)+'</span><span class="team-roster-meta">'+t.p.length+' players</span></div><div class="team-roster-content">'+(content||'<div class="team-roster-empty">No players on this roster yet.</div>')+'</div></article>';
-    }).join("")||'<div class="team-roster-empty">No teams match your search.</div>';
-  }
-  $("teamGrid").innerHTML='<div class="grid">'+teams.map(function(t,ti){
-    var playerList=t.p.length?t.p.map(function(p,pi){
-      var rating=officialRating(p);return '<div class="pl"><div class="nm"><b>'+esc(p.n)+'</b>'+chip(ti,pi,p.s)+'</div><div class="r"><span title="Official rating">'+(rating===0?'Unrated':rating)+'</span><button class="x" data-del="'+ti+':'+pi+'" title="Delete player" aria-label="Delete player">'+ICON.x+'</button></div></div>';
+function optSel(list,val,placeholder){return '<option value="">'+placeholder+'</option>'+list.map(function(o){return '<option'+(o===val?' selected':'')+'>'+o+'</option>'}).join("")}
+function chip(t,i,s){return '<select class="chip stsel '+stClass(s)+'" data-st="'+t+':'+i+'">'+STATUS.map(function(o){return '<option'+(o===s?' selected':'')+'>'+o+'</option>'}).join("")+'</select>'}
+function styleSel(ti,pi,p){return '<select class="stsel" aria-label="Play style for '+esc(p.n)+'" data-sty="'+ti+':'+pi+'">'+optSel(STYLES,p.style,"Play style")+'</select>'}
+function timeSel(ti,pi,p){return '<select class="stsel" aria-label="Time management for '+esc(p.n)+'" data-tm="'+ti+':'+pi+'">'+optSel(TIMES,p.time,"Time mgmt")+'</select>'}
+function pLink(p){var ix=profIdx(p);return '<a class="plink" tabindex="0" data-prof="'+ix+'">'+esc(p.n)+'</a>'}
+function renderManage(){
+  refreshTop();
+  var out=$("manageOut"),q=normalizePlayerName($("manageSearch").value);
+  if(!q){out.innerHTML='<div class="card"><h3>Search to edit a team</h3><p class="note" style="margin:0">Type a team name above to view its roster, add or remove players, and set each player&rsquo;s status, play style and time management. '+teams.length+' teams in the league.</p></div>';return}
+  var list=teams.map(function(t,ti){return {t:t,ti:ti}}).filter(function(x){return normalizePlayerName(x.t.n).indexOf(q)>=0});
+  if(!list.length){out.innerHTML='<div class="card empty">No teams match &ldquo;'+esc($("manageSearch").value.trim())+'&rdquo;.</div>';return}
+  var order={"In Team":0,"Substitute":1,"Unsure":2,"Out Team":3};
+  out.innerHTML=list.map(function(x){
+    var t=x.t,ti=x.ti;
+    var ps=t.p.map(function(p,pi){return {p:p,pi:pi}}).sort(function(a,b){return (order[a.p.s]==null?2:order[a.p.s])-(order[b.p.s]==null?2:order[b.p.s])||officialRating(b.p)-officialRating(a.p)||a.p.n.localeCompare(b.p.n)});
+    var rows=ps.length?ps.map(function(e){
+      var p=e.p,pi=e.pi,r=officialRating(p);
+      return '<div class="mrow"><div class="mname">'+pLink(p)+(topSet.has(p)?topBadge():'')+'<span class="s">Grade '+(esc(gradeText(p))||'—')+'</span></div><div class="mrate">'+(r||'Unrated')+'<small>official</small></div>'+chip(ti,pi,p.s)+styleSel(ti,pi,p)+timeSel(ti,pi,p)+'<button class="x" data-del="'+ti+':'+pi+'" title="Delete player" aria-label="Delete player">'+ICON.x+'</button></div>';
     }).join(""):'<div class="empty">No players yet</div>';
-    return '<div class="card" style="--i:'+ti+'"><h3><span>'+esc(t.n)+'</span><span class="card-actions"><button class="sm" data-addp="'+ti+'">+ Player</button><button class="x" data-delteam="'+ti+'" title="Delete team" aria-label="Delete team">'+ICON.trash+'</button></span></h3>'+playerList+'</div>';
-  }).join('')+'</div>';
+    return '<div class="card mteam"><h3><span>'+esc(t.n)+' <span class="s">&middot; '+t.p.length+' players</span></span><span class="card-actions"><button class="sm" data-addp="'+ti+'">+ Player</button><button class="x" data-delteam="'+ti+'" title="Delete team" aria-label="Delete team">'+ICON.trash+'</button></span></h3>'+(ps.length?'<div class="mrow mh"><span>Player</span><span style="text-align:right">Rating</span><span>Status</span><span>Play style</span><span>Time</span><span></span></div>':'')+rows+'</div>';
+  }).join("");
 }
-var selectedTeamName=null,expandedTeams={};
 function normalizePlayerName(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g," ")}
 function normalizeSchoolName(v){return normalizePlayerName(v).replace(/\bhs\b/g,"high school").replace(/\bcharter\b/g,"").replace(/\bof philadelphia\b/g,"").replace(/\s+/g," ").trim()}
 function schoolTeamFor(school,create){
@@ -402,41 +518,75 @@ function schoolTeamFor(school,create){
   var target=aliases[s]||aliases[schoolKey];
   if(target){var mapped=teams.filter(function(t){return normalizeSchoolName(t.n)===normalizeSchoolName(target)})[0];if(mapped)return mapped}
   var exact=teams.filter(function(t){return normalizePlayerName(t.n)===s||normalizeSchoolName(t.n)===schoolKey})[0];if(exact)return exact;
-  // Match common school-name variants, but avoid loose one-word collisions.
   var close=teams.filter(function(t){var tn=normalizeSchoolName(t.n);return Math.min(tn.length,schoolKey.length)>=8&&(tn===schoolKey||tn.indexOf(schoolKey)>=0||schoolKey.indexOf(tn)>=0)});
   if(close.length===1)return close[0];
   if(!create)return null;
-  // Create one persistent team for every previously unseen CheckChesser school.
   var display=raw.replace(/\s+/g," ").replace(/\s*,\s*/g,", ").trim();
   var created={n:display,p:[],source:"CheckChesser"};teams.push(created);return created;
 }
+function ccIdx(){
+  if(ccIndex)return ccIndex;
+  var id={},nm={};
+  checkChesserPlayers.forEach(function(x){
+    if(!x)return;
+    if(x.uscf_id!=null){var k=String(x.uscf_id);(id[k]=id[k]||[]).push(x)}
+    var n=normalizePlayerName(x.name);if(n)(nm[n]=nm[n]||[]).push(x);
+  });
+  ccIndex={id:id,nm:nm};return ccIndex;
+}
 function lookupPlayer(p){
   if(!p)return null;
-  if(p.uscfId){var byId=checkChesserPlayers.filter(function(x){return String(x.uscf_id||"")===String(p.uscfId)});if(byId.length===1)return byId[0]}
+  var ix=ccIdx();
+  if(p.uscfId){var byId=ix.id[String(p.uscfId)];if(byId&&byId.length===1)return byId[0]}
   var name=normalizePlayerName(p.n);if(!name)return null;
-  var matches=checkChesserPlayers.filter(function(x){return normalizePlayerName(x.name)===name});
+  var matches=ix.nm[name]||[];
   if(matches.length===1)return matches[0];
-  var t=teams.filter(function(team){return team.p.indexOf(p)>=0})[0];
-  if(matches.length>1&&t){var school=normalizePlayerName(t.n);var bySchool=matches.filter(function(x){var st=schoolTeamFor(x.school);return st===t||school.indexOf(normalizePlayerName(x.school))>=0||normalizePlayerName(x.school).indexOf(school)>=0});if(bySchool.length===1)return bySchool[0]}
+  if(matches.length>1){
+    var t=teams.filter(function(team){return team.p.indexOf(p)>=0})[0];
+    if(t){var school=normalizePlayerName(t.n);var bySchool=matches.filter(function(x){var st=schoolTeamFor(x.school);return st===t||school.indexOf(normalizePlayerName(x.school))>=0||normalizePlayerName(x.school).indexOf(school)>=0});if(bySchool.length===1)return bySchool[0]}
+  }
   return null;
 }
 function applyDefaultRosterStatuses(){
-  // Default uncustomized roster statuses by official rating: top seven play, remaining players are substitutes.
-  // Explicit admin status choices are preserved via statusManual.
   teams.forEach(function(t){
     var ordered=t.p.slice().sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)});
     ordered.forEach(function(p,i){if(!p.statusManual)p.s=i<7?"In Team":"Substitute";});
   });
+}
+async function loadCheckChesser(){
+  var response=await fetch(CC_URL,{cache:"no-store",headers:{"Accept":"application/json"}});
+  if(!response.ok)throw new Error("CheckChesser returned HTTP "+response.status);
+  var data=await response.json();if(!Array.isArray(data))throw new Error("Unexpected response format from CheckChesser");
+  checkChesserPlayers=data;ccIndex=null;ratingLookupAt=new Date().toISOString();
+  return data;
+}
+// Try to connect one player to the CheckChesser data (by US Chess ID, then by unique name/school).
+function linkChecker(p,t){
+  if(!checkChesserPlayers.length)return false;
+  var f=null;
+  if(p.uscfId){f=checkChesserPlayers.filter(function(x){return String(x.uscf_id||"")===String(p.uscfId)})[0]||null}
+  if(!f){
+    var nm=normalizePlayerName(p.n),m=checkChesserPlayers.filter(function(x){return normalizePlayerName(x.name)===nm});
+    if(m.length>1&&t){var sm=m.filter(function(x){return schoolTeamFor(x.school)===t});if(sm.length===1)m=sm}
+    if(m.length===1)f=m[0];
+  }
+  if(!f)return false;
+  var official=Number(f.official_rating),lv=Number(f.live_rating),delta=Number(f.delta_live_rating);
+  if(f.uscf_id!=null)p.uscfId=String(f.uscf_id);
+  if(Number.isFinite(official)&&official>0)p.r=official;
+  if(Number.isFinite(lv)&&lv>=0)p.liveRating=lv;
+  if(Number.isFinite(delta))p.deltaLiveRating=delta;
+  if(!gradeText(p)&&f.grade!=null)p.grade=String(f.grade);
+  if(f.school)p.school=f.school;
+  p.ratingSource="CheckChesser";
+  return true;
 }
 async function refreshLiveRatings(automatic){
   if(ratingLookupBusy)return;
   if(!automatic&&(!unlocked||!adminPassword)){need(function(){refreshLiveRatings(false)});return}
   ratingLookupBusy=true;renderPlayers();
   try{
-    var response=await fetch("https://redcomp16-checkchesser-backend.hf.space/api/players/",{cache:"no-store",headers:{"Accept":"application/json"}});
-    if(!response.ok)throw new Error("CheckChesser returned HTTP "+response.status);
-    var data=await response.json();if(!Array.isArray(data))throw new Error("Unexpected response format from CheckChesser");
-    checkChesserPlayers=data;ratingLookupAt=new Date().toISOString();
+    var data=await loadCheckChesser();
     if(automatic){
       ratingLookupStatus="Ratings updated";
       render();
@@ -464,7 +614,6 @@ async function refreshLiveRatings(automatic){
         if(Number.isFinite(delta))player.deltaLiveRating=delta;
         player.grade=x.grade==null?player.grade:String(x.grade);player.school=school||player.school;player.ratingSource="CheckChesser";updated++;matched++;existingById[id]=player;
       }else{
-        // Duplicate guard: ID always wins; name duplicates are scoped to the same school.
         var duplicateById=!!existingById[id];
         var duplicateInSchool=target&&target.p.some(function(p){return normalizePlayerName(p.n)===normalizePlayerName(x.name)});
         if(duplicateById||duplicateInSchool||!target)return;
@@ -474,7 +623,6 @@ async function refreshLiveRatings(automatic){
         target.p.push(fresh);existingById[id]=fresh;imported++;
       }
     });
-    // Keep roster and ratings in the existing Cloudflare shared state; the save includes generated school teams.
     applyDefaultRosterStatuses();
     ratingLookupStatus="Updated "+updated+" · added "+imported+" · new teams "+createdTeams;
     save();
@@ -482,7 +630,7 @@ async function refreshLiveRatings(automatic){
     if(ok)toast("Synced · "+updated+" updated, "+imported+" imported, "+createdTeams+" teams added");
     else toast("Updated locally, but cloud save failed. Retry Save.");
   }catch(e){ratingLookupStatus="Could not load CheckChesser ratings: "+e.message;if(!automatic)toast("Live-rating sync failed");}
-  finally{ratingLookupBusy=false;renderPlayers();renderTeams();renderStandings();renderMatchups();renderPairings();bar()}
+  finally{ratingLookupBusy=false;refreshTop();renderPlayers();renderManage();renderStandings();renderMatchups();renderPairings();if(profileRef&&!profileDirty)renderProfile();bar()}
 }
 function deltaPill(d){
   if(d===null||!Number.isFinite(d))return"";
@@ -491,30 +639,28 @@ function deltaPill(d){
   return '<span class="rating-delta '+(d>0?'up':'down')+'" title="'+(d>0?'+':'−')+Math.abs(d)+' vs official rating">'+tri(d>0?"M6 2l4.5 7h-9z":"M6 10L1.5 3h9z")+Math.abs(d)+'</span>';
 }
 function renderPlayers(){
+  refreshTop();
   var all=[];teams.forEach(function(t,ti){t.p.forEach(function(p,pi){all.push({p:p,t:t.n,ti:ti,pi:pi})})});
   var search=normalizePlayerName($("rankSearch")?$("rankSearch").value:""),schoolFilter=$("rankSchool")?$("rankSchool").value:"";
   var sort=document.body.dataset.rankSort||"live";
-  all=all.filter(function(x){var found=lookupPlayer(x.p),id=(found&&found.uscf_id)||x.p.uscfId;var hay=normalizePlayerName([x.p.n,x.t,id||"",x.p.grade||""].join(" "));return (!search||hay.indexOf(search)>=0)&&(!schoolFilter||x.t===schoolFilter)});
+  all=all.filter(function(x){var found=lookupPlayer(x.p),id=(found&&found.uscf_id)||x.p.uscfId;var hay=normalizePlayerName([x.p.n,x.t,id||"",gradeText(x.p)].join(" "));return (!search||hay.indexOf(search)>=0)&&(!schoolFilter||x.t===schoolFilter)});
   function liveVal(p){var f=lookupPlayer(p),v=f?Number(f.live_rating):Number(p.liveRating);return Number.isFinite(v)?v:-1}
   function officialVal(p){var f=lookupPlayer(p),v=f?Number(f.official_rating):Number(p.r);return Number.isFinite(v)?v:0}
   var sortDir=document.body.dataset.rankDir==="asc"?1:-1;
   all.sort(function(a,b){var cmp=0;if(sort==="points")cmp=num(a.p.pt)-num(b.p.pt);else if(sort==="official")cmp=officialVal(a.p)-officialVal(b.p);else if(sort==="name")cmp=a.p.n.localeCompare(b.p.n);else cmp=liveVal(a.p)-liveVal(b.p);if(cmp===0&&sort!=="name")cmp=a.p.n.localeCompare(b.p.n);return cmp*sortDir;});
-  var allCount=0,matchedCount=0;teams.forEach(function(t){t.p.forEach(function(p){allCount++;if(lookupPlayer(p)||p.ratingSource==="CheckChesser")matchedCount++})});
+  var allCount=0;teams.forEach(function(t){allCount+=t.p.length});
   if($("rankPlayerCount"))$("rankPlayerCount").textContent=allCount.toLocaleString();
-  if($("rankSchoolCount"))$("rankSchoolCount").textContent=teams.length.toLocaleString();
-  if($("rankMatchedCount"))$("rankMatchedCount").textContent=matchedCount.toLocaleString();
-  if($("rankLastSync"))$("rankLastSync").textContent=ratingLookupAt?new Date(ratingLookupAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}):"Not synced";
   var sf=$("rankSchool");if(sf){var prior=sf.value,opts='<option value="">All schools</option>'+teams.slice().sort(function(a,b){return a.n.localeCompare(b.n)}).map(function(t){return '<option value="'+esc(t.n)+'"'+(t.n===prior?' selected':'')+'>'+esc(t.n)+'</option>'}).join("");if(sf.innerHTML!==opts)sf.innerHTML=opts;if(prior&&!teams.some(function(t){return t.n===prior}))sf.value=""}
   $("pBody").innerHTML=all.length?all.map(function(x,i){
-    var found=lookupPlayer(x.p),profileId=(found&&found.uscf_id)||x.p.uscfId,profile=profileId?'<a href="https://ratings.uschess.org/player/'+encodeURIComponent(profileId)+'" target="_blank" rel="noopener noreferrer" title="Open official US Chess profile">'+esc(x.p.n)+'</a>':esc(x.p.n);
+    var found=lookupPlayer(x.p);
     var lr=found&&Number.isFinite(Number(found.live_rating))?Number(found.live_rating):(Number.isFinite(Number(x.p.liveRating))?Number(x.p.liveRating):null);
     var official=found&&Number.isFinite(Number(found.official_rating))?Number(found.official_rating):(Number.isFinite(Number(x.p.r))?Number(x.p.r):null);
-    var grade=found&&found.grade!=null?found.grade:(x.p.grade||"—");
+    var grade=gradeText(x.p)||"—";
     var delta=(lr!==null&&lr>0&&official!==null&&official>0)?Math.round(lr-official):null;
     var liveDisplay=lr===null||lr<=0?'Unrated':'<span class="rating-cell"><span>'+lr+'</span>'+deltaPill(delta)+'</span>';
-    return '<tr><td><span class="badge '+(i===0?'g1':i===1?'g2':i===2?'g3':'')+'">'+(i+1)+'</span></td><td><b>'+profile+'</b><span class="sch-m">'+esc(x.t)+'</span></td><td class="sch">'+esc(x.t)+'</td><td>'+esc(grade===""?"—":String(grade))+'</td><td class="n">'+(official===null||official<=0?'Unrated':official)+'</td><td class="n">'+liveDisplay+'</td><td class="n">'+ed(x.ti,x.pi,"pt",f1(x.p.pt))+'</td></tr>';
-  }).join(""):'<tr><td colspan="7" class="empty">No players match these filters.</td></tr>';
-  var note=$("liveRatingNote");if(note)note.textContent=ratingLookupAt?"Last updated "+new Date(ratingLookupAt).toLocaleString():"Ratings update automatically while this page is open.";
+    return '<tr><td><span class="badge '+(i===0?'g1':i===1?'g2':i===2?'g3':'')+'">'+(i+1)+'</span></td><td><b><a class="plink" tabindex="0" data-prof="'+x.ti+':'+x.pi+'" title="Open player profile">'+esc(x.p.n)+'</a></b>'+(topSet.has(x.p)?topBadge():'')+'<span class="sch-m">'+esc(x.t)+'</span></td><td class="sch">'+esc(x.t)+'</td><td>'+esc(grade)+'</td><td class="n">'+(official===null||official<=0?'Unrated':official)+'</td><td class="n">'+liveDisplay+'</td><td class="n">'+ed(x.ti,x.pi,"pt",f1(x.p.pt))+'</td><td>'+styleSel(x.ti,x.pi,x.p)+'</td><td>'+timeSel(x.ti,x.pi,x.p)+'</td></tr>';
+  }).join(""):'<tr><td colspan="9" class="empty">No players match these filters.</td></tr>';
+  var note=$("liveRatingNote");if(note)note.textContent=(ratingLookupAt?"Last updated "+new Date(ratingLookupAt).toLocaleString()+". ":"")+"Click a player to open their full profile.";
   var btn=$("refreshLiveBtn");if(btn){btn.disabled=ratingLookupBusy;btn.classList.toggle("busy",ratingLookupBusy);btn.innerHTML=ICON.sync+(ratingLookupBusy?"Syncing…":"Sync player data")}
   document.querySelectorAll(".sort-head").forEach(function(b){var active=b.dataset.sort===sort,sp=b.querySelector("span");if(sp)sp.textContent=active?(sortDir===1?"↑":"↓"):"↕"});
 }
@@ -529,60 +675,239 @@ function mHtml(m){
   if(!m.picked&&m.fav.seed>dog.seed)tag='Upset prediction: #'+m.fav.seed+' '+esc(m.fav.name)+' is favored over #'+dog.seed+'.';
   else if(!m.picked&&pd>=0.4)tag='Potential upset: #'+dog.seed+' '+esc(dog.name)+' has a '+pc(pd)+'% chance.';
   var status=m.picked?'<div class="note">Advancing team selected: <b>'+esc(m.w.name)+'</b>. Click the other team if you need to change the selection. The next round updates automatically.</div>':'<div class="note">Choose the team that should advance. This selection unlocks the next round; click the other team to change it later.</div>';
-  return '<div class="m">'+side(m,m.a,m.pa)+side(m,m.b,1-m.pa)+(tag?'<div class="tag">'+tag+'</div>':'')+status+'</div>';
+  return '<div class="m">'+side(m,m.a,m.pa)+side(m,m.b,1-m.pa)+(tag?'<div class="tag">'+tag+'</div>':'')+status+'<button type="button" class="sm" data-openm="'+encodeURIComponent(m.a.name)+'|'+encodeURIComponent(m.b.name)+'">Board predictions</button></div>';
 }
 function renderStandings(){
   var r=ranked();
-  $("sTitle").textContent=round>0?"Standings after Round "+round:"Standings";
+  $("sTitle").textContent=round>0?"Team standings after Round "+round:"Team standings";
   $("sBody").innerHTML=r.map(function(x){
-    var tag=x.seed<=2?' <span class="chip in">Bye</span>':x.seed<=6?' <span class="chip sub">Wildcard</span>':'';
-    return '<tr><td><span class="badge '+(x.seed<=3?"g"+x.seed:"")+'">'+x.seed+'</span></td><td><b>'+esc(x.name)+'</b>'+tag+'</td><td class="n"><b>'+f1(x.t4)+'</b></td><td class="n">'+f1(x.total)+'</td><td class="n">'+(x.avg?Math.round(x.avg):"—")+'</td><td class="n">'+x.count+'</td></tr>';
+    var cls=x.seed<=2?"adv-bye":x.seed<=6?"adv-wc":"adv-out"+(x.seed===7?" cut":"");
+    var tag=x.seed<=2?' <span class="chip in">Advances &middot; Bye</span>':x.seed<=6?' <span class="chip sub">Advances &middot; Wildcard</span>':'';
+    var bc=x.seed<=2?"green":x.seed<=6?"blue":"";
+    return '<tr class="'+cls+'"><td><span class="badge '+bc+'">'+x.seed+'</span></td><td><b>'+esc(x.name)+'</b>'+tag+'</td><td class="n"><b>'+f1(x.t4)+'</b></td><td class="n">'+f1(x.total)+'</td><td class="n">'+(x.avg?Math.round(x.avg):"—")+'</td><td class="n">'+x.count+'</td></tr>';
   }).join("");
   var b=bracket();
   if(!b){$("pNote").textContent="At least 6 teams are needed for the playoff bracket.";$("bracket").innerHTML="";return}
-  $("pNote").textContent="Choose winners in the playoff bracket above. Board-by-board predictions, win odds, forfeits, and substitutions are shown below. Unlock administrator editing to confirm winners and save changes.";
+  $("pNote").textContent="Choose winners in the playoff bracket below. Win odds come from the board-by-board prediction model; open Board predictions on any matchup to see lineups and make substitutions. Unlock administrator editing to confirm winners.";
   var semi1=b.s1?mHtml(b.s1):'<div class="pending-round"><h4>Semifinal 1</h4><p>Waiting for this wildcard match&rsquo;s winner to be confirmed.</p></div>';
   var semi2=b.s2?mHtml(b.s2):'<div class="pending-round"><h4>Semifinal 2</h4><p>Waiting for this wildcard match&rsquo;s winner to be confirmed.</p></div>';
   var final=b.f?mHtml(b.f):'<div class="pending-round"><h4>Final</h4><p>Waiting for both semifinal winners to be confirmed.</p></div>';
   var champion=b.f&&picks[resultKey("f")]?'<div class="champ">'+ICON.trophy+'Confirmed champion: '+esc(picks[resultKey("f")])+'</div>':'';
   $("bracket").innerHTML='<div class="cols"><div class="card q" style="--i:0"><h3>Wildcard round</h3>'+mHtml(b.w1)+mHtml(b.w2)+'</div><div class="card q b" style="--i:1"><h3>Semifinals</h3>'+semi1+semi2+'</div><div class="card q c" style="--i:2"><h3>Final</h3>'+final+champion+'</div></div>';
 }
-function substituteSelect(t,matchKey,board,player){
-  var selected=picks[subKey(matchKey,t.n,board)]||"";
+function substituteSelect(t,matchKey,e){
+  var board=e.slot,selected=picks[subKey(matchKey,t.n,board)]||"";
   var subs=t.p.filter(function(p){return p.s==="Substitute"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||a.n.localeCompare(b.n)});
-  return '<select class="substitution-select" data-sub-match="'+encodeURIComponent(matchKey)+'" data-sub-team="'+encodeURIComponent(t.n)+'" data-sub-board="'+board+'"'+(unlocked?'':' disabled title="Unlock administrator editing to use substitutes"')+' aria-label="Substitute for '+esc(t.n)+' board '+board+'"><option value="">'+(player&&player._isSubstitute?'Use regular player':'Regular lineup')+'</option>'+subs.map(function(p){return '<option value="'+esc(p.n)+'"'+(selected===p.n?' selected':'')+'>'+esc(p.n)+' ('+(officialRating(p)||'Unrated')+')</option>'}).join("")+'</select>';
+  var label=e.base?(e.sub?'Use regular: ':'Regular: ')+esc(e.base.n):'No regular player';
+  return '<select class="substitution-select" data-sub-match="'+encodeURIComponent(matchKey)+'" data-sub-team="'+encodeURIComponent(t.n)+'" data-sub-board="'+board+'"'+(unlocked?'':' disabled title="Unlock administrator editing to use substitutes"')+' aria-label="Substitute for '+esc(t.n)+' slot '+board+'"><option value="">'+label+'</option>'+subs.map(function(p){return '<option value="'+esc(p.n)+'"'+(selected===p.n?' selected':'')+'>'+esc(p.n)+' ('+(officialRating(p)||'Unrated')+')</option>'}).join("")+'</select>';
 }
-function pairCard(title,A,B,i,cls,matchKey){
-  if(!A||!B)return"";
-  matchKey=matchKey||("manual:"+A.n+"|"+B.n);
+function pname(p){var r=curRating(p);return pLink(p)+(topSet.has(p)?topBadge():'')+(r?' <span class="s">'+r+'</span>':'')}
+function pairBody(A,B,matchKey){
   var o=pairing(A,B,matchKey);
   var head='<div class="vs"><span>'+esc(A.n)+' <b>'+pc(o.win)+'%</b></span><span><b>'+pc(1-o.win)+'%</b> '+esc(B.n)+'</span></div><div class="pb"><i style="width:'+pc(o.win)+'%"></i></div>';
-  var rows=o.rows.map(function(r,k){
+  var rows=o.rows.map(function(r){
     var fa=r.forfeit==="A"||(r.predictedWinner==="A"&&!r.forfeit),fb=r.forfeit==="B"||(r.predictedWinner==="B"&&!r.forfeit);
-    var left=r.a?'<div>'+esc(r.a.n)+(r.a._isSubstitute?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="A"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(A,matchKey,r.board,r.a):substituteSelect(A,matchKey,r.board,null)+'<div class="s">No player</div>';
-    var right=r.b?'<div>'+esc(r.b.n)+(r.b._isSubstitute?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="B"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(B,matchKey,r.board,r.b):substituteSelect(B,matchKey,r.board,null)+'<div class="s">No player</div>';
+    var left=r.a?'<div>'+pname(r.a.p)+(r.a.sub?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="A"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(A,matchKey,r.ea):substituteSelect(A,matchKey,r.ea)+'<div class="s">No player</div>';
+    var right=r.b?'<div>'+pname(r.b.p)+(r.b.sub?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="B"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(B,matchKey,r.eb):substituteSelect(B,matchKey,r.eb)+'<div class="s">No player</div>';
     var odds=r.forfeit?'<span class="forfeit-tag">Forfeit</span>':('<div class="odds"><span>'+pc(r.p)+'%</span><div class="pb"><i style="width:'+pc(r.p)+'%"></i></div><span>'+pc(1-r.p)+'%</span></div>');
     return '<tr><td><span class="badge">'+r.board+'</span></td><td class="'+(fa?'fav':'')+'">'+left+'</td><td>'+odds+'</td><td class="'+(fb?'fav':'')+'">'+right+'</td></tr>';
   }).join("");
-  return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+head+'<div class="s pscore">Predicted score <b>'+o.ea+' – '+o.eb+'</b> · whole points only</div><div class="scroll flat"><table class="pair-table"><thead><tr><th>Board</th><th>'+esc(A.n)+'</th><th>Odds / result</th><th>'+esc(B.n)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(o.extraA||o.extraB?'<div class="note">A player without an opponent receives a full point by forfeit. '+(o.extraA?esc(A.n)+': '+o.extraA+' forfeit point(s). ':'')+(o.extraB?esc(B.n)+': '+o.extraB+' forfeit point(s).':'')+'</div>':'')+(!unlocked?'<div class="note">Unlock administrator editing to make matchup-specific substitutions.</div>':'')+'</div>';
+  return head+'<div class="s pscore">Predicted score <b>'+o.ea+' – '+o.eb+'</b> · whole points only · lineups always ordered highest to lowest rated</div><div class="scroll flat"><table class="pair-table"><thead><tr><th>Board</th><th>'+esc(A.n)+'</th><th>Odds / result</th><th>'+esc(B.n)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(o.extraA||o.extraB?'<div class="note">A player without an opponent receives a full point by forfeit. '+(o.extraA?esc(A.n)+': '+o.extraA+' forfeit point(s). ':'')+(o.extraB?esc(B.n)+': '+o.extraB+' forfeit point(s).':'')+'</div>':'')+(!unlocked?'<div class="note">Unlock administrator editing to make matchup-specific substitutions.</div>':'');
 }
+function pairCard(title,A,B,i,cls,matchKey){
+  if(!A||!B)return"";
+  return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+pairBody(A,B,matchKey)+'</div>';
+}
+var MODEL_NOTE='<details class="card model"><summary>How win odds are calculated</summary><div class="mb">Each board is predicted from a strength score for both players, then team odds are built from the board results:<ul><li><b>Live rating</b> is the baseline, compared against the official rating.</li><li><b>Delta status</b>: a higher delta adds momentum, a lower delta takes it away. A player with <b>no change</b> (or no live rating) is a wildcard, so their odds are pulled toward 50% because they could play far better or worse.</li><li><b>League points</b>: more points means a stronger recent performance.</li><li><b>Grade</b> is a very small factor: 9th is slightly less likely, rising through 11th, and 12th is a wildcard.</li><li><b>Play style and time management</b> give small matchup-specific edges (for example Tactical over Positional, Efficient clocks over Fast or Slow).</li></ul></div></details>';
 function renderMatchups(){
   var names=teams.map(function(t){return t.n});
   if(names.indexOf(mA)<0)mA=names[0];
   if(names.indexOf(mB)<0||(mB===mA&&names.length>1))mB=names.filter(function(n){return n!==mA})[0]||mA;
   function opts(sel){return names.map(function(n){return '<option'+(n===sel?' selected':'')+'>'+esc(n)+'</option>'}).join("")}
   $("mA").innerHTML=opts(mA);$("mB").innerHTML=opts(mB);
-  var manualKey="manual:"+mA+"|"+mB;
-  $("mOut").innerHTML=mA===mB?'<div class="empty">Pick two different teams.</div>':'<div class="stack">'+pairCard("Board-by-board pairings",team(mA),team(mB),0,"",manualKey)+'</div>';
+  $("mOut").innerHTML=MODEL_NOTE+(mA===mB?'<div class="empty">Pick two different teams.</div>':'<div class="stack">'+pairCard("Board-by-board pairings",team(mA),team(mB),0,"",matchKeyFor(mA,mB))+'</div>');
+}
+/* ---------- individual (player-level) Swiss pairings ---------- */
+function playerPool(){
+  var pool=[];
+  teams.forEach(function(t){
+    t.p.forEach(function(p){
+      if(p.s!=="In Team")return;
+      pool.push({p:p,t:t,name:p.n,pts:num(p.pt),r:curRating(p)});
+    });
+  });
+  pool.sort(function(a,b){return b.pts-a.pts||b.r-a.r||a.name.localeCompare(b.name)});
+  return pool;
+}
+function mates(x,y){return !!(x&&y&&x.t===y.t)}
+function repairPairs(pairs){
+  for(var pass=0;pass<4;pass++){
+    var changed=false;
+    for(var i=0;i<pairs.length;i++){
+      if(!mates(pairs[i][0],pairs[i][1]))continue;
+      for(var j=0;j<pairs.length;j++){
+        if(i===j)continue;
+        var a=pairs[i][0],b=pairs[i][1],c=pairs[j][0],d=pairs[j][1];
+        if(mates(a,d)||mates(c,b))continue;
+        pairs[i]=[a,d];pairs[j]=[c,b];changed=true;break;
+      }
+    }
+    if(!changed)break;
+  }
+  return pairs;
+}
+function playerPairs(){
+  var pool=playerPool(),groups=[],carry=null;
+  pool.forEach(function(e){
+    var g=groups[groups.length-1];
+    if(g&&Math.abs(g.pts-e.pts)<1e-9){g.list.push(e);return}
+    groups.push({pts:e.pts,list:[e]});
+  });
+  groups.forEach(function(g){
+    var list=g.list.slice();
+    if(carry){list.unshift(carry);carry=null}
+    if(list.length%2)carry=list.pop();
+    var half=Math.floor(list.length/2),made=[];
+    for(var i=0;i<half;i++)made.push([list[i],list[i+half]]);
+    g.list=repairPairs(made);
+  });
+  var all=[],unresolved=0;
+  groups.forEach(function(g){g.list.forEach(function(x){all.push(x)})});
+  for(var i=0;i<all.length;i++){
+    if(!mates(all[i][0],all[i][1]))continue;
+    for(var j=0;j<all.length;j++){
+      if(i===j)continue;
+      var a=all[i][0],b=all[i][1],c=all[j][0],d=all[j][1];
+      if(mates(a,d)||mates(c,b))continue;
+      all[i][0]=a;all[i][1]=d;all[j][0]=c;all[j][1]=b;break;
+    }
+  }
+  all.forEach(function(x){if(mates(x[0],x[1]))unresolved++});
+  return {groups:groups,bye:carry,pool:pool.length,unresolved:unresolved};
 }
 function renderPairings(){
-  var b=bracket();
-  if(!b){$("pairOut").innerHTML='<div class="empty">At least 6 teams are needed for the playoff bracket.</div>';return}
-  var L=[["Wildcard",b.w1,"","wc1"],["Wildcard",b.w2,"","wc2"],["Semifinal",b.s1,"b","sf1"],["Semifinal",b.s2,"b","sf2"],["Final",b.f,"c","f"]];
-  $("pairOut").innerHTML='<div class="stack">'+L.map(function(x,i){return x[1]?pairCard(x[0],team(x[1].a.name),team(x[1].b.name),i,x[2],x[3]):'<div class="card q '+x[2]+'"><h3>'+x[0]+'</h3><p class="note">Waiting for the previous round&rsquo;s actual winners to be confirmed.</p></div>'}).join("")+'</div>';
+  $("swTitle").textContent="Round "+(round+1)+" predicted pairings";
+  var res=playerPairs(),table=0,cards="";
+  res.groups.forEach(function(g,gi){
+    if(!g.list.length)return;
+    var rows=g.list.map(function(pr){
+      table++;
+      var a=pr[0],b=pr[1],pa=playerProb(a.p,b.p),aWins=pa>=0.5;
+      return '<tr><td><span class="badge">'+table+'</span></td>'+
+        '<td class="'+(aWins?'fav':'')+'"><div>'+pLink(a.p)+(topSet.has(a.p)?topBadge():'')+'</div><div class="s">'+esc(a.t.n)+' &middot; '+f1(a.pts)+' pts &middot; '+(a.r||'Unrated')+'</div></td>'+
+        '<td><div class="odds"><span>'+pc(pa)+'%</span><div class="pb"><i style="width:'+pc(pa)+'%"></i></div><span>'+pc(1-pa)+'%</span></div></td>'+
+        '<td class="'+(!aWins?'fav':'')+'"><div>'+pLink(b.p)+(topSet.has(b.p)?topBadge():'')+'</div><div class="s">'+esc(b.t.n)+' &middot; '+f1(b.pts)+' pts &middot; '+(b.r||'Unrated')+'</div></td></tr>';
+    }).join("");
+    cards+='<div class="card q" style="--i:'+gi+'"><h3>'+f1(g.pts)+'-point group</h3><div class="scroll flat"><table class="pair-table"><thead><tr><th>Table</th><th>Player</th><th>Win odds</th><th>Player</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  });
+  if(!table){
+    $("pairOut").innerHTML='<div class="empty">At least two players with status &ldquo;In Team&rdquo; are needed for pairings.</div>';
+    return;
+  }
+  var bye=res.bye?'<div class="card"><h3>Bye</h3><p class="note" style="margin:0">'+pLink(res.bye.p)+' <span class="s">'+esc(res.bye.t.n)+' &middot; '+f1(res.bye.pts)+' pts</span> has no opponent this round because the player pool is odd.</p></div>':'';
+  var warn=res.unresolved?'<p class="note">'+res.unresolved+' table(s) still pair teammates because no alternate opponent was available; a real draw would reshuffle those players.</p>':'';
+  $("pairOut").innerHTML=MODEL_NOTE+'<div class="stack">'+cards+bye+'</div>'+warn+
+    '<p class="note">Predicted from each player&rsquo;s own league points ('+res.pool+' players in the pool): players are grouped by points, then the top half of each group plays the bottom half by rating. Opponents are swapped where needed so teammates do not meet.</p>';
 }
+
+/* ---------- player profile ---------- */
+function signed(v){return (v>=0?"+":"−")+Math.abs(v).toFixed(1)}
+function deltaLabel(d){return d===null?"No live rating yet — wildcard":d===0?"No change — wildcard":d>0?"Rising (+"+d+")":"Falling ("+d+")"}
+function edgeText(map,k){var m=map[k];if(!m)return"";var s=[],w=[];Object.keys(m).forEach(function(o){(m[o]>0?s:w).push(o)});return (s.length?'Edge vs '+s.join(", "):'')+(s.length&&w.length?' · ':'')+(w.length?'Weaker vs '+w.join(", "):'')}
+function fld(label,inner){return '<label class="fld"><span>'+label+'</span>'+inner+'</label>'}
+function openProfile(ti,pi){
+  var t=teams[ti],p=t&&t.p[pi];if(!p)return;
+  profileRef={t:t,p:p};profileTab="stats";renderProfile();
+  $("profile").classList.remove("hidden");document.body.style.overflow="hidden";$("profile").scrollTop=0;
+}
+function closeProfile(){profileRef=null;profileDirty=false;$("profile").classList.add("hidden");document.body.style.overflow="";$("profileBody").innerHTML=""}
+function reattachProfile(){
+  if(!profileRef)return;
+  var tn=profileRef.t.n,pn=profileRef.p.n,pid=profileRef.p.uscfId,t=team(tn),p=null;
+  if(t)p=t.p.filter(function(x){return (pid&&x.uscfId===pid)||x.n===pn})[0]||null;
+  if(t&&p)profileRef={t:t,p:p};else closeProfile();
+}
+function renderProfile(){
+  if(!profileRef)return;
+  var t=profileRef.t,p=profileRef.p;
+  if(teams.indexOf(t)<0||t.p.indexOf(p)<0){closeProfile();return}
+  refreshTop();profileDirty=false;
+  document.querySelectorAll("[data-pftab]").forEach(function(b){b.classList.toggle("on",b.dataset.pftab===profileTab)});
+  var f=lookupPlayer(p),pr=parts(p),id=(f&&f.uscf_id)||p.uscfId,rk=rankInfo(p),grade=gradeText(p);
+  var initials=p.n.split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase()}).join("");
+  var link=id?'<a href="https://ratings.uschess.org/player/'+encodeURIComponent(id)+'" target="_blank" rel="noopener noreferrer">US Chess profile &nearr;</a>':'<span>No US Chess ID linked</span>';
+  var head='<div class="pf-head"><div class="pf-avatar">'+esc(initials)+'</div><div><h2>'+esc(p.n)+(topSet.has(p)?topBadge():'')+'</h2><div class="pf-sub">'+esc(t.n)+' &middot; '+(grade?'Grade '+esc(grade):'Grade not set')+' &middot; '+link+'</div></div><span class="chip '+stClass(p.s)+'">'+esc(p.s||"Unsure")+'</span></div>';
+  var body="";
+  if(profileTab==="stats"){
+    var off=pr.off,lv=pr.live;
+    function tile(k,v){return '<div class="tile"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}
+    var tiles='<div class="pf-tiles">'+
+      tile("Official rating",off>0?off:"Unrated")+
+      tile("Live rating",lv>0?lv+deltaPill(pr.delta):"Unrated")+
+      tile("Rating rank",rk.r?'#'+rk.r+' <small>of '+rk.rn+'</small>':"—")+
+      tile("League points",f1(p.pt))+
+      tile("Points rank",rk.p?'#'+rk.p+' <small>of '+rk.pn+'</small>':"—")+
+      tile("Prediction strength",Math.round(pr.strength))+'</div>';
+    var rows=[
+      ['Baseline rating','<span class="s">'+(lv>0?'Live rating':(off>0?'Official rating (no live rating)':'Unrated, default used'))+'</span>',Math.round(pr.base)],
+      ['Delta status','<span class="s">'+esc(deltaLabel(pr.delta))+'</span>',signed(pr.momentum)],
+      ['League points','<span class="s">'+f1(p.pt)+' points (capped at 8)</span>',signed(pr.pts)],
+      ['Grade (tiny factor)','<span class="s">'+(pr.g?(pr.g===12?'12th grade: wildcard':pr.g+'th grade'):'Not set')+'</span>',signed(pr.grade)],
+      ['Play style','<span class="s">'+esc(p.style||"Not set")+' &middot; matchup-specific</span>','&plusmn;6 max'],
+      ['Time management','<span class="s">'+esc(p.time||"Not set")+' &middot; matchup-specific</span>','&plusmn;4 max'],
+      ['Uncertainty','<span class="s">'+(pr.wild>0?'Wildcard: odds are pulled toward 50%':'Normal')+'</span>',pr.wild>0?'+'+Math.round(pr.wild*70)+'%':'—']
+    ];
+    body=tiles+'<div class="pf-grid"><div class="card"><h3>Prediction factors</h3><table class="ftable"><tbody>'+rows.map(function(r){return '<tr><td>'+r[0]+r[1]+'</td><td>'+r[2]+'</td></tr>'}).join("")+'</tbody></table></div>'+
+      '<div class="card"><h3>Details</h3><table class="ftable"><tbody>'+
+      '<tr><td>Team</td><td>'+esc(t.n)+'</td></tr>'+
+      '<tr><td>Status</td><td>'+esc(p.s||"Unsure")+'</td></tr>'+
+      '<tr><td>US Chess ID</td><td>'+(id?esc(id):'—')+'</td></tr>'+
+      '<tr><td>Rating source</td><td>'+(f?'CheckChesser':'Manual')+'</td></tr>'+
+      '<tr><td>Play style</td><td>'+esc(p.style||'Not set')+'</td></tr>'+
+      '<tr><td>Time management</td><td>'+esc(p.time||'Not set')+'</td></tr></tbody></table></div></div>';
+  }else if(profileTab==="style"){
+    body='<div class="pf-grid"><div class="card"><h3>Play style</h3><select aria-label="Play style" data-pfsty="1">'+optSel(STYLES,p.style,"Not set")+'</select><p class="style-desc">'+esc(p.style?STYLE_INFO[p.style]:"Choose a play style: Positional, Defense, Tactical or Attacking.")+'</p><div class="style-meta">'+(p.style?esc(edgeText(STYLE_EDGE,p.style))+' &middot; worth up to ±6 rating points in predictions':'Styles add a small matchup-specific edge to predictions.')+'</div></div>'+
+      '<div class="card"><h3>Time management</h3><select aria-label="Time management" data-pftm="1">'+optSel(TIMES,p.time,"Not set")+'</select><p class="style-desc">'+esc(p.time?TIME_INFO[p.time]:"Choose how this player uses the clock: Fast, Efficient or Slow.")+'</p><div class="style-meta">'+(p.time?esc(edgeText(TIME_EDGE,p.time))+' &middot; worth up to ±4 rating points in predictions':'Time habits add a small matchup-specific edge to predictions.')+'</div></div></div>'+(unlocked?'':'<p class="note">Unlock administrator editing to change play style or time management.</p>');
+  }else{
+    var teamOpts=teams.map(function(x,i){return '<option value="'+i+'"'+(x===t?' selected':'')+'>'+esc(x.n)+'</option>'}).join("");
+    body='<div class="card"><h3>Edit player</h3><div class="fgrid">'+
+      fld("Name",'<input id="pfName" type="text" value="'+esc(p.n).replace(/"/g,"&quot;")+'"/>')+
+      fld("Team",'<select id="pfTeam">'+teamOpts+'</select>')+
+      fld("Grade",'<select id="pfGrade"><option value="">Not set</option>'+["9","10","11","12"].map(function(g){return '<option value="'+g+'"'+(grade===g?' selected':'')+'>'+g+'th grade</option>'}).join("")+'</select>')+
+      fld("US Chess link or ID",'<input id="pfUscf" type="text" placeholder="https://ratings.uschess.org/player/…" value="'+(id?'https://ratings.uschess.org/player/'+esc(id):'')+'"/>')+
+      fld(f?"Official rating (managed by CheckChesser)":"Official rating",'<input id="pfRating" type="number" min="0" step="1" value="'+(off_(p)||"")+'"'+(f?' disabled':'')+'/>')+
+      fld("League points",'<input id="pfPts" type="number" min="0" step="0.5" value="'+f1(p.pt)+'"/>')+
+      fld("Status",'<select id="pfStatus">'+STATUS.map(function(o){return '<option'+(o===p.s?' selected':'')+'>'+o+'</option>'}).join("")+'</select>')+
+      '</div><div class="modal-actions" style="margin-top:20px"><button class="primary" id="pfSave" type="button">Save player</button></div><p class="note" style="margin:12px 0 0">Saving applies the changes here; use the Save bar at the bottom to publish them to the shared league data. Changing the US Chess link re-links the player to CheckChesser when a match is found.</p></div>';
+  }
+  $("profileBody").innerHTML=head+body;
+}
+function off_(p){var f=lookupPlayer(p);return f?officialRating(p):(Number(p.r)>0?Math.round(Number(p.r)):0)}
+function saveProfile(){
+  need(function(){
+    if(!profileRef)return;
+    var t=profileRef.t,p=profileRef.p,name=$("pfName").value.trim();
+    if(!name){toast("Enter a name");return}
+    p.n=name;
+    var g=$("pfGrade").value;if(g)p.grade=g;else delete p.grade;
+    var raw=$("pfUscf").value.trim(),id=parseUscf(raw);
+    if(raw&&!id){toast("Couldn't find a US Chess ID in that link");return}
+    if(id)p.uscfId=id;else delete p.uscfId;
+    if(!$("pfRating").disabled)p.r=Math.max(0,Math.round(num($("pfRating").value)));
+    p.pt=Math.max(0,Math.round(num($("pfPts").value)*10)/10);
+    p.s=$("pfStatus").value;p.statusManual=true;
+    var dest=teams[+$("pfTeam").value];
+    if(dest&&dest!==t){t.p.splice(t.p.indexOf(p),1);dest.p.push(p);profileRef.t=dest}
+    var linked=linkChecker(p,profileRef.t);
+    save();renderProfile();toast(linked?"Player updated · linked to CheckChesser":"Player updated");
+  });
+}
+
+/* ---------- shared storage (Cloudflare Worker + D1) ---------- */
+function bar(){dirty=JSON.stringify(teams)!==savedJson||round!==savedRound||JSON.stringify(picks)!==savedPicksJson;$("savebar").classList.toggle("show",dirty)}
 function render(){
-  renderTeams();renderPlayers();renderStandings();renderMatchups();renderPairings();
+  refreshTop();
+  renderManage();renderPlayers();renderStandings();renderMatchups();renderPairings();
   $("lockBtn").innerHTML=ICON[unlocked?"unlock":"lock"]+'<span class="lbl">'+(unlocked?"Lock editing":"Unlock editing")+'</span>';$("lockBtn").setAttribute("aria-label",unlocked?"Lock editing":"Unlock editing");$("lockBtn").classList.toggle("primary",!unlocked);
   $("roundBtn").textContent=round>0?"Round "+round+" completed":"No rounds completed";
   $("saveRound").textContent="Save & complete Round "+(round+1);
@@ -591,9 +916,6 @@ function render(){
   $("dot").className="dot"+(live?" live":"");
   if(flash){document.querySelectorAll('.ed[data-t="'+flash[0]+'"][data-i="'+flash[1]+'"][data-f="'+flash[2]+'"]').forEach(function(e){e.classList.add("flash")});flash=null}
 }
-
-/* ---------- shared storage (Cloudflare Worker + D1) ---------- */
-function bar(){dirty=JSON.stringify(teams)!==savedJson||round!==savedRound||JSON.stringify(picks)!==savedPicksJson;$("savebar").classList.toggle("show",dirty)}
 function save(){render();bar()}
 async function commit(complete){
   if(!unlocked||!adminPassword){toast("Unlock editing before saving");return false}
@@ -616,7 +938,7 @@ async function refreshSharedState(initial){
       var incoming=JSON.stringify(d.teams),incomingPicks=JSON.stringify(d.picks||{});
       if(!dirty&&(incoming!==savedJson||num(d.round)!==savedRound||incomingPicks!==savedPicksJson)){
         teams=Array.isArray(d.teams)?d.teams:JSON.parse(JSON.stringify(DEFAULT));round=num(d.round);picks=d.picks&&typeof d.picks==="object"?d.picks:{};savedJson=JSON.stringify(teams);savedRound=round;savedPicksJson=JSON.stringify(picks);
-        render();bar();
+        reattachProfile();render();bar();if(profileRef&&!profileDirty)renderProfile();
       }
       remoteUpdatedAt=d.updatedAt||null;
       setStatus("Connected · shared data synced",true);
@@ -630,7 +952,6 @@ async function refreshSharedState(initial){
 (async function(){
   render();await refreshSharedState(true);
   pollTimer=setInterval(function(){if(!dirty)refreshSharedState(false)},10000);
-  // Public, read-only rating refresh every 30 minutes. It runs only while the tab is visible.
   refreshLiveRatings(true);
   setInterval(function(){if(!document.hidden&&!ratingLookupBusy&&(!ratingLookupAt||Date.now()-Date.parse(ratingLookupAt)>=30*60*1000))refreshLiveRatings(true)},5*60*1000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden&&!ratingLookupBusy&&(!ratingLookupAt||Date.now()-Date.parse(ratingLookupAt)>=30*60*1000))refreshLiveRatings(true)});
@@ -646,8 +967,8 @@ function need(fn){
   $("pwInput").value="";$("pwInput2").value="";$("pwErr").textContent="";
   $("pwModal").classList.add("show");$("pwInput").focus();
 }
-$("lockBtn").onclick=function(){if(unlocked){unlocked=false;adminPassword=null;render()}else need(function(){})};
-$("pwCancel").onclick=function(){pending=null;$("pwModal").classList.remove("show")};
+$("lockBtn").onclick=function(){if(unlocked){unlocked=false;adminPassword=null;render();if(profileRef&&!profileDirty)renderProfile()}else need(function(){})};
+$("pwCancel").onclick=function(){pending=null;$("pwModal").classList.remove("show");if(profileRef&&!profileDirty)renderProfile()};
 $("pwOk").onclick=async function(){
   var pw=$("pwInput").value;
   if(!pw){$("pwErr").textContent="Enter the administrator password.";return}
@@ -665,28 +986,37 @@ $("pwInput").addEventListener("keydown",function(e){if(e.key==="Enter")$("pwOk")
 function openForm(mode,ti){
   fMode=mode;
   $("fTitle").textContent=mode==="team"?"Add team":"Add player";
-  ["fTeam","fStatus","fAnother"].forEach(function(id){$(id).classList.toggle("hidden",mode==="team")});
+  ["fTeam","fStatus","fAnother","fUscf","fGrade"].forEach(function(id){$(id).classList.toggle("hidden",mode==="team")});
   $("fName").placeholder=mode==="team"?"Team name":"Player name";
   $("fTeam").innerHTML=teams.map(function(t,i){return '<option value="'+i+'">'+esc(t.n)+'</option>'}).join("");
   if(ti!==""&&ti!=null)$("fTeam").value=ti;
-  $("fName").value="";
+  $("fName").value="";$("fUscf").value="";$("fGrade").value="";
   $("fErr").textContent="";$("fModal").classList.add("show");$("fName").focus();
 }
 $("addTeamBtn").onclick=function(){need(function(){openForm("team")})};
 $("refreshLiveBtn").onclick=function(){refreshLiveRatings()};
 ["rankSearch","rankSchool"].forEach(function(id){var el=$(id);if(el)el.addEventListener(id==="rankSearch"?"input":"change",function(){renderPlayers()})});
-$("teamRankSearch").addEventListener("input",function(){renderTeams()});
-
+$("manageSearch").addEventListener("input",function(){renderManage()});
 
 document.querySelectorAll(".sort-head").forEach(function(b){b.addEventListener("click",function(){var current=document.body.dataset.rankSort||"live";if(b.dataset.sort===current){document.body.dataset.rankDir=document.body.dataset.rankDir==="asc"?"desc":"asc";}else{document.body.dataset.rankSort=b.dataset.sort;document.body.dataset.rankDir="desc";}renderPlayers()})});
 $("fCancel").onclick=function(){$("fModal").classList.remove("show")};
-function submitForm(another){
+async function submitForm(another){
   var n=$("fName").value.trim();
   if(!n){$("fErr").textContent="Enter a name.";return}
-  if(fMode==="team")teams.push({n:n,p:[]});
-  else teams[+$("fTeam").value].p.push({n:n,r:0,pt:0,s:$("fStatus").value});
-  save();
-  if(another===true&&fMode==="player"){$("fName").value="";$("fName").focus();toast("Added "+n)}
+  if(fMode==="team"){
+    teams.push({n:n,p:[]});save();$("fModal").classList.remove("show");return;
+  }
+  var t=teams[+$("fTeam").value],p={n:n,r:0,pt:0,s:$("fStatus").value},raw=$("fUscf").value.trim(),id=parseUscf(raw),g=$("fGrade").value;
+  if(raw&&!id){$("fErr").textContent="Couldn't find a US Chess ID in that link.";return}
+  if(id)p.uscfId=id;
+  if(g)p.grade=g;
+  $("fOk").disabled=true;$("fAnother").disabled=true;$("fErr").textContent="";
+  if(!checkChesserPlayers.length){try{await loadCheckChesser()}catch(e){}}
+  $("fOk").disabled=false;$("fAnother").disabled=false;
+  var linked=linkChecker(p,t);
+  t.p.push(p);save();
+  toast(linked?"Added "+n+" · linked to CheckChesser":"Added "+n+" · not found in CheckChesser, listed manually");
+  if(another===true){$("fName").value="";$("fUscf").value="";$("fGrade").value="";$("fName").focus()}
   else $("fModal").classList.remove("show");
 }
 $("fOk").onclick=function(){submitForm()};
@@ -717,9 +1047,19 @@ function editRound(){
   inp.onkeydown=function(e){if(e.key==="Enter")fin(true);if(e.key==="Escape"){done=true;render()}};
 }
 $("roundBtn").onclick=function(){need(editRound)};
+function gotoTab(id){show(id);try{localStorage.setItem("league-tab",id)}catch(e){}}
 document.addEventListener("click",function(e){
-  var el=e.target.closest("[data-t],[data-del],[data-delteam],[data-addp],[data-pick]");
+  var el=e.target.closest("[data-t],[data-del],[data-delteam],[data-addp],[data-pick],[data-prof],[data-openm],[data-pftab],#pfClose,#pfSave");
   if(!el||el.tagName==="INPUT")return;
+  if(el.id==="pfClose"){closeProfile();return}
+  if(el.id==="pfSave"){saveProfile();return}
+  if(el.dataset.pftab){profileTab=el.dataset.pftab;renderProfile();$("profile").scrollTop=0;return}
+  if(el.dataset.prof!==undefined){
+    e.preventDefault();var pp=el.dataset.prof.split(":");if(pp.length===2)openProfile(+pp[0],+pp[1]);return;
+  }
+  if(el.dataset.openm){
+    var nn=el.dataset.openm.split("|").map(decodeURIComponent);mA=nn[0];mB=nn[1];renderMatchups();gotoTab("matchups");window.scrollTo(0,0);return;
+  }
   if(el.classList.contains("ed")){
     if(el.dataset.f!=="pt"||el.querySelector("input"))return;
     var a=[el.dataset.t,el.dataset.i,el.dataset.f];need(function(){startEdit(a[0],a[1],a[2])});
@@ -736,15 +1076,20 @@ document.addEventListener("click",function(e){
     need(function(){
       var resultName=resultKey(key),previous=picks[resultName];
       picks[resultName]=nm;
-      // If an earlier-round winner changes, later results must be confirmed again.
       if((key==="wc1"||key==="wc2")&&previous!==nm){delete picks[resultKey("sf1")];delete picks[resultKey("sf2")];delete picks[resultKey("f")];}
       if((key==="sf1"||key==="sf2")&&previous!==nm)delete picks[resultKey("f")];
-      save();renderStandings();renderPairings();renderMatchups();toast("Winner confirmed: "+nm)
+      save();toast("Winner confirmed: "+nm)
     });
   }
 });
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("plink")){e.preventDefault();e.target.click()}
+  if(e.key==="Escape"&&profileRef&&!$("pwModal").classList.contains("show")&&!$("fModal").classList.contains("show"))closeProfile();
+});
+document.addEventListener("input",function(e){if(e.target.closest&&e.target.closest("#profileBody"))profileDirty=true});
 document.addEventListener("mousedown",function(e){
-  if(e.target.dataset&&e.target.dataset.st!==undefined&&!unlocked){e.preventDefault();need(function(){})}
+  var ds=e.target.dataset;
+  if(ds&&(ds.st!==undefined||ds.sty!==undefined||ds.tm!==undefined)&&!unlocked){e.preventDefault();need(function(){})}
 });
 document.addEventListener("change",function(e){
   var s=e.target;
@@ -752,17 +1097,32 @@ document.addEventListener("change",function(e){
   if(s.dataset&&s.dataset.subMatch!==undefined){
     if(!unlocked){toast("Unlock administrator editing to use substitutes");renderMatchups();renderPairings();return}
     var mk=decodeURIComponent(s.dataset.subMatch),tn=decodeURIComponent(s.dataset.subTeam),board=Number(s.dataset.subBoard),key=subKey(mk,tn,board),val=s.value;
-    // A substitute can only occupy one board in a given matchup for their team.
     if(val){var prefix="sub:"+encodeURIComponent(mk)+":"+encodeURIComponent(tn)+":";Object.keys(picks).forEach(function(k){if(k.indexOf(prefix)===0&&k!==key&&picks[k]===val)delete picks[k]})}
-    if(val)picks[key]=val;else delete picks[key];save();renderMatchups();renderPairings();toast(val?"Substitution applied for this matchup":"Regular lineup restored");return;
+    if(val)picks[key]=val;else delete picks[key];save();toast(val?"Substitution applied for this matchup":"Regular lineup restored");return;
+  }
+  if(s.dataset&&(s.dataset.pfsty!==undefined||s.dataset.pftm!==undefined)){
+    var pfField=s.dataset.pfsty!==undefined?"style":"time",pfVal=s.value;
+    if(!unlocked)renderProfile();
+    need(function(){
+      if(!profileRef)return;
+      if(pfVal)profileRef.p[pfField]=pfVal;else delete profileRef.p[pfField];
+      save();renderProfile();
+    });
+    return;
+  }
+  if(s.dataset&&(s.dataset.sty!==undefined||s.dataset.tm!==undefined)){
+    if(!unlocked){renderPlayers();renderManage();return}
+    var k2=s.dataset.sty!==undefined?"sty":"tm",c2=s.dataset[k2].split(":"),pl=teams[+c2[0]].p[+c2[1]],fl=k2==="sty"?"style":"time";
+    if(s.value)pl[fl]=s.value;else delete pl[fl];
+    save();return;
   }
   if(!s.dataset||s.dataset.st===undefined||!unlocked)return;
   var c=s.dataset.st.split(":");teams[+c[0]].p[+c[1]].s=s.value;teams[+c[0]].p[+c[1]].statusManual=true;save();
 });
-$("resetPicks").onclick=function(){need(function(){picks={};save();renderStandings();renderPairings()})};
+$("resetPicks").onclick=function(){need(function(){picks={};save()})};
 $("saveBtn").onclick=function(){commit()};
 $("saveRound").onclick=function(){commit(true)};
-$("discardBtn").onclick=function(){teams=JSON.parse(savedJson);round=savedRound;picks=JSON.parse(savedPicksJson);render();bar();toast("Changes discarded")};
+$("discardBtn").onclick=function(){teams=JSON.parse(savedJson);round=savedRound;picks=JSON.parse(savedPicksJson);reattachProfile();render();bar();if(profileRef)renderProfile();toast("Changes discarded")};
 window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue=""}});
 
 /* ---------- color theme ---------- */
@@ -772,14 +1132,15 @@ $("themeBtn").onclick=function(){applyTheme(document.documentElement.getAttribut
 
 /* ---------- tabs ---------- */
 function show(id){
-  document.querySelectorAll(".tab").forEach(function(x){var on=x.dataset.tab===id;x.classList.toggle("on",on);x.setAttribute("aria-current",on?"page":"false")});
+  document.querySelectorAll(".tab[data-tab]").forEach(function(x){var on=x.dataset.tab===id;x.classList.toggle("on",on);x.setAttribute("aria-current",on?"page":"false")});
   TABS.forEach(function(s){
     var el=$(s);el.classList.toggle("hidden",s!==id);el.classList.remove("enter");
     if(s===id){void el.offsetWidth;el.classList.add("enter")}
   });
 }
-document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){show(b.dataset.tab);try{localStorage.setItem("league-tab",b.dataset.tab)}catch(e){}}});(function(){var t=null;try{t=localStorage.getItem("league-tab")}catch(e){}if(t&&TABS.indexOf(t)>=0&&t!=="standings")show(t)})();
+document.querySelectorAll(".tab[data-tab]").forEach(function(b){b.onclick=function(){gotoTab(b.dataset.tab)}});
+(function(){var t=null;try{t=localStorage.getItem("league-tab")}catch(e){}if(t&&TABS.indexOf(t)>=0&&t!=="players")show(t)})();
 })();
-  </script>
+</script>
 </body>
 </html>
