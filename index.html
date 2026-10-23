@@ -242,6 +242,16 @@ button.primary{background:var(--accent);box-shadow:none}
 #players .rank-table{min-width:780px}
 #players .rank-table th:last-child,#players .rank-table td:last-child{min-width:80px}
 @media(max-width:680px){.team-player-row{grid-template-columns:65px minmax(120px,1fr) 80px;gap:8px;padding:10px 11px}.team-player-rating:nth-of-type(4){display:none}.team-player-status{grid-column:2 / 4;justify-self:start}.team-player-status-select{grid-column:2 / 4;justify-self:start;max-width:155px}.team-player-rating small{display:block;margin:0}.team-roster-toggle{padding:13px}.section-heading h2{font-size:21px}}
+
+/* Matchup-only substitute controls and step-by-step result confirmation. */
+.substitution-select{display:block;max-width:190px;width:100%;margin-top:5px;padding:5px 7px;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--mute);font-size:11px}
+.substitution-select:disabled{opacity:.75;cursor:not-allowed}
+.sub-used,.forfeit-tag{display:inline-block;margin-left:4px;padding:2px 5px;border-radius:5px;font-size:10px;font-weight:750;background:var(--sel);color:var(--accent);white-space:nowrap}
+.forfeit-tag{background:#dcfce7;color:#166534}
+:root[data-theme="dark"] .forfeit-tag{background:#123a29;color:#86efac}
+.pending-round{border:1px dashed var(--line);border-radius:12px;padding:14px;margin:10px 0;color:var(--mute);background:var(--card)}
+.pending-round h4{margin:0 0 5px;color:var(--text)}.pending-round p{font-size:12px;margin:0}
+#pairings td{vertical-align:top}
  </style>
  </head>
  <body>
@@ -564,26 +574,50 @@ function prob(a,b){
   if(pe!==null&&pp!==null)return (pe+pp)/2;
   return pe!==null?pe:pp!==null?pp:0.5;
 }
+function resultKey(key){return "result:"+key}
 function match(key,a,b){
-  var pa=prob(a,b),fav=pa>0.5||(pa===0.5&&a.seed<b.seed)?a:b;
-  var w=picks[key]===a.name?a:picks[key]===b.name?b:fav;
-  return {key:key,a:a,b:b,pa:pa,fav:fav,w:w,picked:w.name===picks[key]};
+  var pa=prob(a,b),fav=pa>0.5||(pa===0.5&&a.seed<b.seed)?a:b,confirmed=picks[resultKey(key)];
+  var w=confirmed===a.name?a:confirmed===b.name?b:fav;
+  return {key:key,a:a,b:b,pa:pa,fav:fav,w:w,picked:confirmed===a.name||confirmed===b.name};
 }
 function bracket(){
   var r=ranked();if(r.length<6)return null;
-  var w1=match("wc1",r[2],r[5]),w2=match("wc2",r[3],r[4]),s1=match("sf1",r[0],w1.w),s2=match("sf2",r[1],w2.w);
-  return {w1:w1,w2:w2,s1:s1,s2:s2,f:match("f",s1.w,s2.w)};
+  var w1=match("wc1",r[2],r[5]),w2=match("wc2",r[3],r[4]);
+  var wc1=picks[resultKey("wc1")],wc2=picks[resultKey("wc2")];
+  var winner1=wc1?team(wc1):null,winner2=wc2?team(wc2):null;
+  var s1=wc1&&winner1?match("sf1",r[0],Object.assign({},stats(winner1),{seed:ranked().filter(function(x){return x.name===winner1.n})[0]?.seed||6})):null;
+  var s2=wc2&&winner2?match("sf2",r[1],Object.assign({},stats(winner2),{seed:ranked().filter(function(x){return x.name===winner2.n})[0]?.seed||6})):null;
+  var sf1=picks[resultKey("sf1")],sf2=picks[resultKey("sf2")];
+  var f=sf1&&sf2&&team(sf1)&&team(sf2)?match("f",Object.assign({},stats(team(sf1)),{seed:ranked().filter(function(x){return x.name===sf1})[0]?.seed||1}),Object.assign({},stats(team(sf2)),{seed:ranked().filter(function(x){return x.name===sf2})[0]?.seed||2})):null;
+  return {w1:w1,w2:w2,s1:s1,s2:s2,f:f};
 }
-function boards(t){
-  return t.p.filter(function(x){return x.s==="In Team"}).sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)});
+function boards(t,matchKey,slots){
+  var active=t.p.filter(function(x){return x.s==="In Team"}).sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)});
+  var max=Math.max(active.length,slots||0),out=[];
+  for(var i=0;i<max;i++){
+    var chosen=picks[subKey(matchKey,t.n,i+1)],sub=chosen&&t.p.filter(function(x){return x.n===chosen&&x.s==="Substitute"})[0];
+    out.push(sub?Object.assign({},sub,{_isSubstitute:true,_boardIndex:i+1}):(active[i]?Object.assign({},active[i],{_boardIndex:i+1}):null));
+  }
+  return out;
 }
+function subKey(matchKey,teamName,board){return "sub:"+encodeURIComponent(matchKey)+":"+encodeURIComponent(teamName)+":"+board}
 function exp(ra,rb){return(!ra||!rb)?0.5:1/(1+Math.pow(10,(rb-ra)/400))}
 function phi(z){var t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p}
-function pairing(A,B){
-  var a=boards(A),b=boards(B),n=Math.min(a.length,b.length),rows=[],mean=0,v=0;
-  for(var i=0;i<n;i++){var p=exp(officialRating(a[i]),officialRating(b[i]));rows.push({a:a[i],b:b[i],p:p});mean+=p;v+=p*(1-p)}
-  var win=n===0?0.5:v>0?phi((mean-n/2)/Math.sqrt(v)):(mean>n/2?1:mean<n/2?0:0.5);
-  return {rows:rows,n:n,ea:mean,eb:n-mean,win:win,extraA:a.length-n,extraB:b.length-n};
+function pairing(A,B,matchKey){
+  var baseA=boards(A),baseB=boards(B),selectedSlots=0;
+  Object.keys(picks).forEach(function(k){var prefix="sub:"+encodeURIComponent(matchKey)+":";if(k.indexOf(prefix)===0){var parts=k.split(":");selectedSlots=Math.max(selectedSlots,Number(parts[parts.length-1])||0)}});
+  var n=Math.max(baseA.length,baseB.length,selectedSlots),a=boards(A,matchKey,n),b=boards(B,matchKey,n),rows=[],meanA=0,variance=0,scoreA=0,scoreB=0;
+  for(var i=0;i<n;i++){
+    var aa=a[i]||null,bb=b[i]||null;
+    if(!aa&&!bb)continue;
+    if(aa&&!bb){rows.push({a:aa,b:null,p:1,forfeit:"A",board:i+1});meanA+=1;scoreA++;continue}
+    if(!aa&&bb){rows.push({a:null,b:bb,p:0,forfeit:"B",board:i+1});scoreB++;continue}
+    var pr=exp(officialRating(aa),officialRating(bb)),aWins=pr>=0.5;
+    rows.push({a:aa,b:bb,p:pr,board:i+1,predictedWinner:aWins?"A":"B"});meanA+=pr;variance+=pr*(1-pr);
+    if(aWins)scoreA++;else scoreB++;
+  }
+  var total=scoreA+scoreB,win=variance>0?phi((meanA-total/2)/Math.sqrt(variance)):(scoreA>scoreB?1:scoreA<scoreB?0:0.5);
+  return {rows:rows,n:rows.length,ea:scoreA,eb:scoreB,win:win,extraA:rows.filter(function(x){return x.forfeit==="A"}).length,extraB:rows.filter(function(x){return x.forfeit==="B"}).length};
 }
 
 /* ---------- render ---------- */
@@ -750,15 +784,16 @@ function renderPlayers(){
   document.querySelectorAll(".sort-head").forEach(function(b){var active=b.dataset.sort===sort,sp=b.querySelector("span");if(sp)sp.textContent=active?(sortDir===1?"↑":"↓"):"↕"});
 }
 function side(m,x,p){
-  var tag=m.picked&&m.w===x?' <span class="s">(your pick)</span>':'';
-  return '<button class="side '+(m.w===x?"on":"")+'" data-m="'+m.key+'" data-pick="'+encodeURIComponent(x.name)+'"><div class="t"><span>'+(m.w===x?"✓ ":"")+'#'+x.seed+' '+esc(x.name)+tag+'</span><b>'+pc(p)+'%</b></div><div class="s">T-4: '+f1(x.t4)+' · Avg rating: '+(x.avg?Math.round(x.avg):"—")+'</div><div class="pb"><i style="width:'+pc(p)+'%"></i></div></button>';
+  var tag=m.picked&&m.w===x?' <span class="s">(confirmed winner)</span>':(!m.picked&&m.fav===x?' <span class="s">(favored)</span>':'');
+  return '<button class="side '+(m.picked&&m.w===x?"on":"")+'" data-m="'+m.key+'" data-pick="'+encodeURIComponent(x.name)+'" title="Confirm '+esc(x.name)+' as the winner"><div class="t"><span>'+(m.picked&&m.w===x?"✓ ":"")+'#'+x.seed+' '+esc(x.name)+tag+'</span><b>'+pc(p)+'%</b></div><div class="s">T-4: '+f1(x.t4)+' · Avg rating: '+(x.avg?Math.round(x.avg):"—")+'</div><div class="pb"><i style="width:'+pc(p)+'%"></i></div></button>';
 }
 function mHtml(m){
+  if(!m)return '<div class="card q"><h3>Waiting for confirmed winners</h3><p class="note">Choose the actual winner of each preceding matchup to reveal the next round.</p></div>';
   var dog=m.fav===m.a?m.b:m.a,pd=dog===m.a?m.pa:1-m.pa,tag="";
-  if(m.fav.seed>dog.seed)tag='⚠ Upset predicted: #'+m.fav.seed+' '+esc(m.fav.name)+' is favored over #'+dog.seed+'.';
-  else if(pd>=0.4)tag='⚠ Potential upset: #'+dog.seed+' '+esc(dog.name)+' has a '+pc(pd)+'% chance.';
-  else if(m.w===dog)tag='Your pick is an upset ('+pc(pd)+'% chance).';
-  return '<div class="m">'+side(m,m.a,m.pa)+side(m,m.b,1-m.pa)+(tag?'<div class="tag">'+tag+'</div>':'')+'</div>';
+  if(!m.picked&&m.fav.seed>dog.seed)tag='⚠ Upset prediction: #'+m.fav.seed+' '+esc(m.fav.name)+' is favored over #'+dog.seed+'.';
+  else if(!m.picked&&pd>=0.4)tag='Potential upset: #'+dog.seed+' '+esc(dog.name)+' has a '+pc(pd)+'% chance.';
+  var status=m.picked?'<div class="note">Winner confirmed: <b>'+esc(m.w.name)+'</b>. The next round is now available.</div>':'<div class="note">Prediction only — click the team that actually won after the match.</div>';
+  return '<div class="m">'+side(m,m.a,m.pa)+side(m,m.b,1-m.pa)+(tag?'<div class="tag">'+tag+'</div>':'')+status+'</div>';
 }
 function renderStandings(){
   var r=ranked();
@@ -769,23 +804,31 @@ function renderStandings(){
   }).join("");
   var b=bracket();
   if(!b){$("pNote").textContent="At least 6 teams are needed for the playoff bracket.";$("bracket").innerHTML="";return}
-  $("pNote").textContent="Win % blends average rating with T-4 points. Administrators can pick a team to advance it; picks are shared with everyone.";
-  $("bracket").innerHTML='<div class="cols">'+
-   '<div class="card q" style="--i:0"><h3>Wildcard round</h3>'+mHtml(b.w1)+mHtml(b.w2)+'</div>'+
-   '<div class="card q b" style="--i:1"><h3>Semifinals</h3>'+mHtml(b.s1)+mHtml(b.s2)+'</div>'+
-   '<div class="card q c" style="--i:2"><h3>Final</h3>'+mHtml(b.f)+'<div class="champ">🏆 Predicted champion: '+esc(b.f.w.name)+'</div></div></div>';
+  $("pNote").textContent="Predictions reveal one round at a time. Click the actual winner after each match to unlock the next round. Scores and results are shared when an administrator saves.";
+  var semi1=b.s1?mHtml(b.s1):'<div class="pending-round"><h4>Semifinal 1</h4><p>Waiting for this wildcard match&rsquo;s winner to be confirmed.</p></div>';
+  var semi2=b.s2?mHtml(b.s2):'<div class="pending-round"><h4>Semifinal 2</h4><p>Waiting for this wildcard match&rsquo;s winner to be confirmed.</p></div>';
+  var final=b.f?mHtml(b.f):'<div class="pending-round"><h4>Final</h4><p>Waiting for both semifinal winners to be confirmed.</p></div>';
+  var champion=b.f&&picks[resultKey("f")]?'<div class="champ">🏆 Confirmed champion: '+esc(picks[resultKey("f")])+'</div>':'';
+  $("bracket").innerHTML='<div class="cols"><div class="card q" style="--i:0"><h3>Wildcard round</h3>'+mHtml(b.w1)+mHtml(b.w2)+'</div><div class="card q b" style="--i:1"><h3>Semifinals</h3>'+semi1+semi2+'</div><div class="card q c" style="--i:2"><h3>Final</h3>'+final+champion+'</div></div>';
 }
-function pairCard(title,A,B,i,cls){
+function substituteSelect(t,matchKey,board,player){
+  var selected=picks[subKey(matchKey,t.n,board)]||"";
+  var subs=t.p.filter(function(p){return p.s==="Substitute"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||a.n.localeCompare(b.n)});
+  return '<select class="substitution-select" data-sub-match="'+encodeURIComponent(matchKey)+'" data-sub-team="'+encodeURIComponent(t.n)+'" data-sub-board="'+board+'"'+(unlocked?'':' disabled title="Unlock administrator editing to use substitutes"')+' aria-label="Substitute for '+esc(t.n)+' board '+board+'"><option value="">'+(player&&player._isSubstitute?'Use regular player':'Regular lineup')+'</option>'+subs.map(function(p){return '<option value="'+esc(p.n)+'"'+(selected===p.n?' selected':'')+'>'+esc(p.n)+' ('+(officialRating(p)||'Unrated')+')</option>'}).join("")+'</select>';
+}
+function pairCard(title,A,B,i,cls,matchKey){
   if(!A||!B)return"";
-  var o=pairing(A,B);
+  matchKey=matchKey||("manual:"+A.n+"|"+B.n);
+  var o=pairing(A,B,matchKey);
   var head='<div class="vs"><span>'+esc(A.n)+' <b>'+pc(o.win)+'%</b></span><span><b>'+pc(1-o.win)+'%</b> '+esc(B.n)+'</span></div><div class="pb"><i style="width:'+pc(o.win)+'%"></i></div>';
-  if(!o.n)return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+head+'<div class="empty">Both teams need “In Team” players to create pairings.</div></div>';
   var rows=o.rows.map(function(r,k){
-    var fa=r.p>=0.5;
-    return '<tr><td><span class="badge">'+(k+1)+'</span></td><td class="'+(fa?"fav":"")+'">'+esc(r.a.n)+' <span class="s">'+(r.a.r||"—")+'</span></td><td><div class="odds"><span>'+pc(r.p)+'%</span><div class="pb"><i style="width:'+pc(r.p)+'%"></i></div><span>'+pc(1-r.p)+'%</span></div></td><td class="'+(fa?"":"fav")+'">'+esc(r.b.n)+' <span class="s">'+(r.b.r||"—")+'</span></td></tr>';
+    var fa=r.forfeit==="A"||(r.predictedWinner==="A"&&!r.forfeit),fb=r.forfeit==="B"||(r.predictedWinner==="B"&&!r.forfeit);
+    var left=r.a?'<div>'+esc(r.a.n)+(r.a._isSubstitute?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="A"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(A,matchKey,r.board,r.a):substituteSelect(A,matchKey,r.board,null)+'<div class="s">No player</div>';
+    var right=r.b?'<div>'+esc(r.b.n)+(r.b._isSubstitute?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="B"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(B,matchKey,r.board,r.b):substituteSelect(B,matchKey,r.board,null)+'<div class="s">No player</div>';
+    var odds=r.forfeit?'<span class="forfeit-tag">Forfeit</span>':('<div class="odds"><span>'+pc(r.p)+'%</span><div class="pb"><i style="width:'+pc(r.p)+'%"></i></div><span>'+pc(1-r.p)+'%</span></div>');
+    return '<tr><td><span class="badge">'+r.board+'</span></td><td class="'+(fa?'fav':'')+'">'+left+'</td><td>'+odds+'</td><td class="'+(fb?'fav':'')+'">'+right+'</td></tr>';
   }).join("");
-  var extra=(o.extraA||o.extraB)?'<div class="note">'+(o.extraA?esc(A.n)+' has '+o.extraA+' extra player(s) without an opponent. ':'')+(o.extraB?esc(B.n)+' has '+o.extraB+' extra player(s) without an opponent.':'')+'</div>':'';
-  return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+head+'<div class="s" style="margin:6px 0 10px">Expected score '+f1(o.ea)+' – '+f1(o.eb)+'</div><div class="scroll" style="box-shadow:none"><table style="min-width:480px"><thead><tr><th>Board</th><th>'+esc(A.n)+'</th><th>Win odds</th><th>'+esc(B.n)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+extra+'</div>';
+  return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+head+'<div class="s" style="margin:6px 0 10px">Predicted score <b>'+o.ea+' – '+o.eb+'</b> · whole points only</div><div class="scroll" style="box-shadow:none"><table style="min-width:560px"><thead><tr><th>Board</th><th>'+esc(A.n)+'</th><th>Odds / result</th><th>'+esc(B.n)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(o.extraA||o.extraB?'<div class="note">A player without an opponent receives a full point by forfeit. '+(o.extraA?esc(A.n)+': '+o.extraA+' forfeit point(s). ':'')+(o.extraB?esc(B.n)+': '+o.extraB+' forfeit point(s).':'')+'</div>':'')+(!unlocked?'<div class="note">Unlock administrator editing to make matchup-specific substitutions.</div>':'')+'</div>';
 }
 function renderMatchups(){
   var names=teams.map(function(t){return t.n});
@@ -793,13 +836,14 @@ function renderMatchups(){
   if(names.indexOf(mB)<0||(mB===mA&&names.length>1))mB=names.filter(function(n){return n!==mA})[0]||mA;
   function opts(sel){return names.map(function(n){return '<option'+(n===sel?' selected':'')+'>'+esc(n)+'</option>'}).join("")}
   $("mA").innerHTML=opts(mA);$("mB").innerHTML=opts(mB);
-  $("mOut").innerHTML=mA===mB?'<div class="empty">Pick two different teams.</div>':'<div class="stack">'+pairCard("Board-by-board pairings",team(mA),team(mB),0)+'</div>';
+  var manualKey="manual:"+mA+"|"+mB;
+  $("mOut").innerHTML=mA===mB?'<div class="empty">Pick two different teams.</div>':'<div class="stack">'+pairCard("Board-by-board pairings",team(mA),team(mB),0,"",manualKey)+'</div>';
 }
 function renderPairings(){
   var b=bracket();
   if(!b){$("pairOut").innerHTML='<div class="empty">At least 6 teams are needed for the playoff bracket.</div>';return}
-  var L=[["Wildcard",b.w1,""],["Wildcard",b.w2,""],["Semifinal",b.s1,"b"],["Semifinal",b.s2,"b"],["Final",b.f,"c"]];
-  $("pairOut").innerHTML='<div class="stack">'+L.map(function(x,i){return pairCard(x[0],team(x[1].a.name),team(x[1].b.name),i,x[2])}).join("")+'</div>';
+  var L=[["Wildcard",b.w1,"","wc1"],["Wildcard",b.w2,"","wc2"],["Semifinal",b.s1,"b","sf1"],["Semifinal",b.s2,"b","sf2"],["Final",b.f,"c","f"]];
+  $("pairOut").innerHTML='<div class="stack">'+L.map(function(x,i){return x[1]?pairCard(x[0],team(x[1].a.name),team(x[1].b.name),i,x[2],x[3]):'<div class="card q '+x[2]+'"><h3>'+x[0]+'</h3><p class="note">Waiting for the previous round&rsquo;s actual winners to be confirmed.</p></div>'}).join("")+'</div>';
 }
 function render(){
   renderTeams();renderPlayers();renderStandings();renderMatchups();renderPairings();
@@ -953,7 +997,14 @@ document.addEventListener("click",function(e){
     var ti=el.dataset.addp;need(function(){openForm("player",ti)});
   }else if(el.dataset.pick){
     var nm=decodeURIComponent(el.dataset.pick),key=el.dataset.m;
-    need(function(){if(picks[key]===nm)delete picks[key];else picks[key]=nm;save();renderStandings();renderPairings()});
+    need(function(){
+      var resultName=resultKey(key),previous=picks[resultName];
+      picks[resultName]=nm;
+      // If an earlier-round winner changes, later results must be confirmed again.
+      if((key==="wc1"||key==="wc2")&&previous!==nm){delete picks[resultKey("sf1")];delete picks[resultKey("sf2")];delete picks[resultKey("f")];}
+      if((key==="sf1"||key==="sf2")&&previous!==nm)delete picks[resultKey("f")];
+      save();renderStandings();renderPairings();renderMatchups();toast("Winner confirmed: "+nm)
+    });
   }
 });
 document.addEventListener("mousedown",function(e){
@@ -962,6 +1013,13 @@ document.addEventListener("mousedown",function(e){
 document.addEventListener("change",function(e){
   var s=e.target;
   if(s.id==="mA"||s.id==="mB"){if(s.id==="mA")mA=s.value;else mB=s.value;renderMatchups();return}
+  if(s.dataset&&s.dataset.subMatch!==undefined){
+    if(!unlocked){toast("Unlock administrator editing to use substitutes");renderMatchups();renderPairings();return}
+    var mk=decodeURIComponent(s.dataset.subMatch),tn=decodeURIComponent(s.dataset.subTeam),board=Number(s.dataset.subBoard),key=subKey(mk,tn,board),val=s.value;
+    // A substitute can only occupy one board in a given matchup for their team.
+    if(val){var prefix="sub:"+encodeURIComponent(mk)+":"+encodeURIComponent(tn)+":";Object.keys(picks).forEach(function(k){if(k.indexOf(prefix)===0&&k!==key&&picks[k]===val)delete picks[k]})}
+    if(val)picks[key]=val;else delete picks[key];save();renderMatchups();renderPairings();toast(val?"Substitution applied for this matchup":"Regular lineup restored");return;
+  }
   if(!s.dataset||s.dataset.st===undefined||!unlocked)return;
   var c=s.dataset.st.split(":");teams[+c[0]].p[+c[1]].s=s.value;teams[+c[0]].p[+c[1]].statusManual=true;save();
 });
