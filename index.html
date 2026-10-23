@@ -107,6 +107,12 @@ td.n,th.n{text-align:right}td b{font-weight:600}td:first-child,th:first-child{wi
 .chip.in,.chip.status-active{--c:var(--in)}.chip.sub,.chip.status-sub{--c:var(--sub)}.chip.out,.chip.status-out{--c:var(--out)}.chip.unsure,.chip.status-unsure{--c:var(--unsure)}
 select.stsel{width:auto;height:30px;padding:0 30px 0 13px;font-size:13px;font-weight:500;background-position:right 11px center;background-size:11px;border-radius:999px}
 select.stsel:disabled{cursor:not-allowed}
+/* play style + time management tones */
+select[data-tone]{font-weight:600;color:var(--c);background-color:color-mix(in srgb,var(--c) 11%,var(--surface));border-color:color-mix(in srgb,var(--c) 34%,var(--line))}select[data-tone]:focus{border-color:var(--accent)}
+select[data-tone="positional"]{--c:#2a58d6}select[data-tone="defense"]{--c:#17743f}select[data-tone="tactical"]{--c:#6a3ac1}select[data-tone="attacking"]{--c:#b8323a}select[data-tone="allrounder"]{--c:#9a5b08}
+select[data-tone="fast"]{--c:#9a5b08}select[data-tone="efficient"]{--c:#17743f}select[data-tone="slow"]{--c:#b8323a}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) select[data-tone="positional"]{--c:#7b9dff}:root:not([data-theme="light"]) select[data-tone="defense"]{--c:#5ccf8a}:root:not([data-theme="light"]) select[data-tone="tactical"]{--c:#b294ff}:root:not([data-theme="light"]) select[data-tone="attacking"]{--c:#ff8a90}:root:not([data-theme="light"]) select[data-tone="allrounder"]{--c:#e6b04e}:root:not([data-theme="light"]) select[data-tone="fast"]{--c:#e6b04e}:root:not([data-theme="light"]) select[data-tone="efficient"]{--c:#5ccf8a}:root:not([data-theme="light"]) select[data-tone="slow"]{--c:#ff8a90}}
+:root[data-theme="dark"] select[data-tone="positional"]{--c:#7b9dff}:root[data-theme="dark"] select[data-tone="defense"]{--c:#5ccf8a}:root[data-theme="dark"] select[data-tone="tactical"]{--c:#b294ff}:root[data-theme="dark"] select[data-tone="attacking"]{--c:#ff8a90}:root[data-theme="dark"] select[data-tone="allrounder"]{--c:#e6b04e}:root[data-theme="dark"] select[data-tone="fast"]{--c:#e6b04e}:root[data-theme="dark"] select[data-tone="efficient"]{--c:#5ccf8a}:root[data-theme="dark"] select[data-tone="slow"]{--c:#ff8a90}
 
 /* cards, manage */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:24px;box-shadow:var(--sh)}
@@ -139,6 +145,10 @@ select.stsel:disabled{cursor:not-allowed}
 .substitution-select{display:block;width:100%;max-width:230px;height:32px;margin-top:8px;padding:0 30px 0 12px;font-size:13px;color:var(--muted);border-radius:var(--r-s)}.substitution-select:disabled{opacity:.7;cursor:not-allowed}
 .sub-used,.forfeit-tag{display:inline-flex;align-items:center;height:22px;margin-left:8px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,var(--surface))}
 .forfeit-tag{color:var(--in);background:color-mix(in srgb,var(--in) 11%,var(--surface))}
+.draw-tag{display:inline-flex;align-items:center;height:22px;margin-top:6px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;color:var(--unsure);background:color-mix(in srgb,var(--unsure) 13%,var(--surface))}
+.draw-note{display:flex;align-items:center;gap:7px;margin:12px 0 0;color:var(--unsure);font-weight:500}
+.draw-note svg{flex:none}
+tr.no-board td{color:var(--faint);background:color-mix(in srgb,var(--line) 26%,transparent)}
 .swiss{padding:0;overflow:hidden}
 .swiss>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:64px 1fr auto 1fr auto;gap:14px;align-items:center;padding:18px 24px;font-size:15px}
 .swiss>summary::-webkit-details-marker{display:none}.swiss>summary:hover{background:var(--hover)}
@@ -345,7 +355,8 @@ unlock:svg('<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4
 sync:svg('<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/>'),
 trash:svg('<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/>'),
 x:svg('<path d="M6 6l12 12M18 6L6 18"/>'),
-trophy:svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/>')};
+trophy:svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/>'),
+draw:svg('<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>')};
 function esc(s){var d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML}
 function num(v){var x=parseFloat(v);return isNaN(x)?0:x}
 function f1(v){return num(v).toFixed(1)}
@@ -425,10 +436,10 @@ function resultKey(key){return "result:"+key}
 function matchKeyFor(x,y){return "manual:"+[x,y].sort().join("|")}
 function match(key,a,b){
   var A=team(a.name),B=team(b.name);
-  var pa=(A&&B)?pairing(A,B,matchKeyFor(a.name,b.name)).win:0.5;
-  var fav=pa>0.5||(pa===0.5&&a.seed<b.seed)?a:b,confirmed=picks[resultKey(key)];
+  var pr=(A&&B)?pairing(A,B,matchKeyFor(a.name,b.name)):{win:0.5,draw:false};
+  var pa=pr.win,fav=pa>0.5||(pa===0.5&&a.seed<b.seed)?a:b,confirmed=picks[resultKey(key)];
   var w=confirmed===a.name?a:confirmed===b.name?b:fav;
-  return {key:key,a:a,b:b,pa:pa,fav:fav,w:w,picked:confirmed===a.name||confirmed===b.name};
+  return {key:key,a:a,b:b,pa:pa,fav:fav,w:w,draw:!!pr.draw,picked:confirmed===a.name||confirmed===b.name};
 }
 function seedOf(n){var x=ranked().filter(function(y){return y.name===n})[0];return x?x.seed:99}
 function withSeed(name){var t=team(name);return t?Object.assign({},stats(t),{seed:seedOf(name)}):null}
@@ -443,11 +454,17 @@ function bracket(){
   return {w1:w1,w2:w2,s1:s1,s2:s2,f:f};
 }
 function subKey(matchKey,teamName,board){return "sub:"+encodeURIComponent(matchKey)+":"+encodeURIComponent(teamName)+":"+board}
+// A team match is always TEAM_BOARDS boards, so the points on offer always add up
+// to TEAM_BOARDS. Only a team's top TEAM_BOARDS players by rating count.
+var TEAM_BOARDS=7;
+// A board inside this band around 50% is too close to call, so it is predicted a draw.
+var DRAW_BAND=0.05;
+function fmtScore(v){return Number.isInteger(v)?String(v):v.toFixed(1)}
 // Each board entry keeps its original slot (so substitution menus stay attached to the
 // regular player) but the final lineup is always sorted highest to lowest rated.
 function boards(t,matchKey,slots){
-  var active=t.p.filter(function(x){return x.s==="In Team"}).sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)});
-  var max=Math.max(active.length,slots||0),out=[];
+  var active=t.p.filter(function(x){return x.s==="In Team"}).sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)}).slice(0,TEAM_BOARDS);
+  var max=Math.max(active.length,Math.min(slots||0,TEAM_BOARDS)),out=[];
   for(var i=0;i<max;i++){
     var chosen=matchKey?picks[subKey(matchKey,t.n,i+1)]:null,sub=chosen&&t.p.filter(function(x){return x.n===chosen&&x.s==="Substitute"})[0],base=active[i]||null;
     out.push({slot:i+1,base:base,p:sub||base,sub:!!sub});
@@ -460,28 +477,37 @@ function boards(t,matchKey,slots){
 }
 function phi(z){var t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p}
 function pairing(A,B,matchKey){
-  var baseA=boards(A),baseB=boards(B),selectedSlots=0;
-  Object.keys(picks).forEach(function(k){var prefix="sub:"+encodeURIComponent(matchKey)+":";if(k.indexOf(prefix)===0){var parts_=k.split(":");selectedSlots=Math.max(selectedSlots,Number(parts_[parts_.length-1])||0)}});
-  var n=Math.max(baseA.length,baseB.length,selectedSlots),a=boards(A,matchKey,n),b=boards(B,matchKey,n),rows=[],meanA=0,variance=0,scoreA=0,scoreB=0;
+  var n=TEAM_BOARDS,a=boards(A,matchKey,n),b=boards(B,matchKey,n),rows=[],meanA=0,variance=0,scoreA=0,scoreB=0,drawBoards=0,emptyBoards=0,played=0;
   for(var i=0;i<n;i++){
     var ea=a[i],eb=b[i],aa=ea&&ea.p?ea:null,bb=eb&&eb.p?eb:null;
-    if(!aa&&!bb)continue;
-    if(aa&&!bb){rows.push({a:aa,b:null,ea:ea,eb:eb,p:1,forfeit:"A",board:i+1});meanA+=1;scoreA++;continue}
-    if(!aa&&bb){rows.push({a:null,b:bb,ea:ea,eb:eb,p:0,forfeit:"B",board:i+1});scoreB++;continue}
-    var pr=playerProb(aa.p,bb.p),aWins=pr>=0.5;
-    rows.push({a:aa,b:bb,ea:ea,eb:eb,p:pr,board:i+1,predictedWinner:aWins?"A":"B"});meanA+=pr;variance+=pr*(1-pr);
-    if(aWins)scoreA++;else scoreB++;
+    if(!aa&&!bb){rows.push({a:null,b:null,ea:ea,eb:eb,p:null,board:i+1,none:true});emptyBoards++;continue}
+    if(aa&&!bb){rows.push({a:aa,b:null,ea:ea,eb:eb,p:1,forfeit:"A",board:i+1});meanA+=1;scoreA++;played++;continue}
+    if(!aa&&bb){rows.push({a:null,b:bb,ea:ea,eb:eb,p:0,forfeit:"B",board:i+1});scoreB++;played++;continue}
+    var pr=playerProb(aa.p,bb.p);played++;
+    if(Math.abs(pr-0.5)<DRAW_BAND){
+      rows.push({a:aa,b:bb,ea:ea,eb:eb,p:pr,board:i+1,draw:true});
+      meanA+=0.5;variance+=0.25;scoreA+=0.5;scoreB+=0.5;drawBoards++;
+    }else{
+      var aWins=pr>0.5;
+      rows.push({a:aa,b:bb,ea:ea,eb:eb,p:pr,board:i+1,predictedWinner:aWins?"A":"B"});meanA+=pr;variance+=pr*(1-pr);
+      if(aWins)scoreA++;else scoreB++;
+    }
   }
-  var total=scoreA+scoreB,win=variance>0?phi((meanA-total/2)/Math.sqrt(variance)):(scoreA>scoreB?1:scoreA<scoreB?0:0.5);
-  return {rows:rows,n:rows.length,ea:scoreA,eb:scoreB,win:win,extraA:rows.filter(function(x){return x.forfeit==="A"}).length,extraB:rows.filter(function(x){return x.forfeit==="B"}).length};
+  var total=scoreA+scoreB;
+  var win=variance>0?phi((meanA-total/2)/Math.sqrt(variance)):(!total?0.5:scoreA>scoreB?1:scoreA<scoreB?0:0.5);
+  var draw=played>0&&Math.abs(scoreA-scoreB)<1e-9;
+  return {rows:rows,n:rows.length,ea:scoreA,eb:scoreB,win:win,draw:draw,drawBoards:drawBoards,emptyBoards:emptyBoards,played:played,extraA:rows.filter(function(x){return x.forfeit==="A"}).length,extraB:rows.filter(function(x){return x.forfeit==="B"}).length};
 }
 
 /* ---------- render ---------- */
 function ed(t,i,f,v){return '<span class="ed'+(f==="pt"?" rank-point":"")+'" data-t="'+t+'" data-i="'+i+'" data-f="'+f+'">'+v+'</span>'}
 function optSel(list,val,placeholder){return '<option value="">'+placeholder+'</option>'+list.map(function(o){return '<option'+(o===val?' selected':'')+'>'+o+'</option>'}).join("")}
+// Colour tone per play style / time value (unknown or unset values stay neutral).
+var TONES={"Positional":"positional","Defense":"defense","Tactical":"tactical","Attacking":"attacking","All-rounder":"allrounder","Fast":"fast","Efficient":"efficient","Slow":"slow"};
+function toneAttr(v){var t=TONES[v];return t?' data-tone="'+t+'"':''}
 function chip(t,i,s){return '<select class="chip stsel '+stClass(s)+'" data-st="'+t+':'+i+'">'+STATUS.map(function(o){return '<option'+(o===s?' selected':'')+'>'+o+'</option>'}).join("")+'</select>'}
-function styleSel(ti,pi,p){return '<select class="stsel" aria-label="Play style for '+esc(p.n)+'" data-sty="'+ti+':'+pi+'">'+optSel(STYLES,p.style,"Play style")+'</select>'}
-function timeSel(ti,pi,p){return '<select class="stsel" aria-label="Time management for '+esc(p.n)+'" data-tm="'+ti+':'+pi+'">'+optSel(TIMES,p.time,"Time mgmt")+'</select>'}
+function styleSel(ti,pi,p){return '<select class="stsel"'+toneAttr(p.style)+' aria-label="Play style for '+esc(p.n)+'" data-sty="'+ti+':'+pi+'">'+optSel(STYLES,p.style,"Play style")+'</select>'}
+function timeSel(ti,pi,p){return '<select class="stsel"'+toneAttr(p.time)+' aria-label="Time management for '+esc(p.n)+'" data-tm="'+ti+':'+pi+'">'+optSel(TIMES,p.time,"Time mgmt")+'</select>'}
 function pLink(p){var ix=profIdx(p);return '<a class="plink" tabindex="0" data-prof="'+ix+'">'+esc(p.n)+'</a>'}
 function renderManage(){
   refreshTop();
@@ -667,14 +693,15 @@ function renderPlayers(){
   document.querySelectorAll(".sort-head").forEach(function(b){var active=b.dataset.sort===sort,sp=b.querySelector("span");if(sp)sp.textContent=active?(sortDir===1?"↑":"↓"):"↕"});
 }
 function side(m,x,p){
-  var tag=m.picked&&m.w===x?' <span class="s">(confirmed winner)</span>':(!m.picked&&m.fav===x?' <span class="s">(favored)</span>':'');
+  var tag=m.picked&&m.w===x?' <span class="s">(confirmed winner)</span>':(!m.picked&&m.draw?'':(!m.picked&&m.fav===x?' <span class="s">(favored)</span>':''));
   var selected=m.picked&&m.w===x;
   return '<button type="button" class="side '+(selected?"on":"")+'" data-m="'+esc(m.key)+'" data-pick="'+encodeURIComponent(x.name)+'" title="Choose '+esc(x.name)+' to advance to the next round"><div class="t"><span>'+'#'+x.seed+' '+esc(x.name)+tag+'</span><b>'+pc(p)+'%</b></div><div class="s">T-4: '+f1(x.t4)+' · Avg rating: '+(x.avg?Math.round(x.avg):"—")+'</div><div class="pb"><i style="width:'+pc(p)+'%"></i></div><span class="advance-label">'+(selected?'Selected to advance':'Select to advance')+'</span></button>';
 }
 function mHtml(m){
   if(!m)return '<div class="card q"><h3>Waiting for confirmed winners</h3><p class="note">Choose the actual winner of each preceding matchup to reveal the next round.</p></div>';
   var dog=m.fav===m.a?m.b:m.a,pd=dog===m.a?m.pa:1-m.pa,tag="";
-  if(!m.picked&&m.fav.seed>dog.seed)tag='Upset prediction: #'+m.fav.seed+' '+esc(m.fav.name)+' is favored over #'+dog.seed+'.';
+  if(!m.picked&&m.draw)tag='Predicted draw: the board model has this match level, so neither team is favored. Pick the team you expect to advance.';
+  else if(!m.picked&&m.fav.seed>dog.seed)tag='Upset prediction: #'+m.fav.seed+' '+esc(m.fav.name)+' is favored over #'+dog.seed+'.';
   else if(!m.picked&&pd>=0.4)tag='Potential upset: #'+dog.seed+' '+esc(dog.name)+' has a '+pc(pd)+'% chance.';
   var status=m.picked?'<div class="note">Advancing team selected: <b>'+esc(m.w.name)+'</b>. Click the other team if you need to change the selection. The next round updates automatically.</div>':'<div class="note">Choose the team that should advance. This selection unlocks the next round; click the other team to change it later.</div>';
   return '<div class="m">'+side(m,m.a,m.pa)+side(m,m.b,1-m.pa)+(tag?'<div class="tag">'+tag+'</div>':'')+status+'<button type="button" class="sm" data-openm="'+encodeURIComponent(m.a.name)+'|'+encodeURIComponent(m.b.name)+'">Board predictions</button></div>';
@@ -706,21 +733,21 @@ function substituteSelect(t,matchKey,e){
 function pname(p){var r=curRating(p);return pLink(p)+(topSet.has(p)?topBadge():'')+(r?' <span class="s">'+r+'</span>':'')}
 function pairBody(A,B,matchKey){
   var o=pairing(A,B,matchKey);
-  var head='<div class="vs"><span>'+esc(A.n)+' <b>'+pc(o.win)+'%</b></span><span><b>'+pc(1-o.win)+'%</b> '+esc(B.n)+'</span></div><div class="pb"><i style="width:'+pc(o.win)+'%"></i></div>';
+  var head='<div class="vs"><span>'+esc(A.n)+' <b>'+pc(o.win)+'%</b></span><span><b>'+pc(1-o.win)+'%</b> '+esc(B.n)+'</span></div><div class="pb"><i style="width:'+pc(o.win)+'%"></i></div>'+(o.draw?'<div class="note draw-note">'+ICON.draw+'Predicted draw: the boards add up level at '+fmtScore(o.ea)+'–'+fmtScore(o.eb)+', so neither team is favored.</div>':'');
   var rows=o.rows.map(function(r){
     var fa=r.forfeit==="A"||(r.predictedWinner==="A"&&!r.forfeit),fb=r.forfeit==="B"||(r.predictedWinner==="B"&&!r.forfeit);
     var left=r.a?'<div>'+pname(r.a.p)+(r.a.sub?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="A"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(A,matchKey,r.ea):substituteSelect(A,matchKey,r.ea)+'<div class="s">No player</div>';
     var right=r.b?'<div>'+pname(r.b.p)+(r.b.sub?' <span class="sub-used">SUB</span>':'')+(r.forfeit==="B"?' <span class="forfeit-tag">+1 forfeit</span>':'')+'</div>'+substituteSelect(B,matchKey,r.eb):substituteSelect(B,matchKey,r.eb)+'<div class="s">No player</div>';
-    var odds=r.forfeit?'<span class="forfeit-tag">Forfeit</span>':('<div class="odds"><span>'+pc(r.p)+'%</span><div class="pb"><i style="width:'+pc(r.p)+'%"></i></div><span>'+pc(1-r.p)+'%</span></div>');
-    return '<tr><td><span class="badge">'+r.board+'</span></td><td class="'+(fa?'fav':'')+'">'+left+'</td><td>'+odds+'</td><td class="'+(fb?'fav':'')+'">'+right+'</td></tr>';
+    var odds=r.none?'<span class="s">No result</span>':r.forfeit?'<span class="forfeit-tag">Forfeit</span>':('<div class="odds"><span>'+pc(r.p)+'%</span><div class="pb"><i style="width:'+pc(r.p)+'%"></i></div><span>'+pc(1-r.p)+'%</span></div>'+(r.draw?'<span class="draw-tag">Draw</span>':''));
+    return '<tr'+(r.none?' class="no-board"':'')+'><td><span class="badge">'+r.board+'</span></td><td class="'+(fa?'fav':'')+'">'+left+'</td><td>'+odds+'</td><td class="'+(fb?'fav':'')+'">'+right+'</td></tr>';
   }).join("");
-  return head+'<div class="s pscore">Predicted score <b>'+o.ea+' – '+o.eb+'</b> · whole points only · lineups always ordered highest to lowest rated</div><div class="scroll flat"><table class="pair-table"><thead><tr><th>Board</th><th>'+esc(A.n)+'</th><th>Odds / result</th><th>'+esc(B.n)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(o.extraA||o.extraB?'<div class="note">A player without an opponent receives a full point by forfeit. '+(o.extraA?esc(A.n)+': '+o.extraA+' forfeit point(s). ':'')+(o.extraB?esc(B.n)+': '+o.extraB+' forfeit point(s).':'')+'</div>':'')+(!unlocked?'<div class="note">Unlock administrator editing to make matchup-specific substitutions.</div>':'');
+  return head+'<div class="s pscore">Predicted score <b>'+fmtScore(o.ea)+' – '+fmtScore(o.eb)+'</b> · '+TEAM_BOARDS+'-board match worth '+TEAM_BOARDS+' points · lineups from the top '+TEAM_BOARDS+' players by rating · boards inside '+pc(DRAW_BAND)+'% of even are called draws</div><div class="scroll flat"><table class="pair-table"><thead><tr><th>Board</th><th>'+esc(A.n)+'</th><th>Odds / result</th><th>'+esc(B.n)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(o.extraA||o.extraB?'<div class="note">A player without an opponent receives a full point by forfeit. '+(o.extraA?esc(A.n)+': '+o.extraA+' forfeit point(s). ':'')+(o.extraB?esc(B.n)+': '+o.extraB+' forfeit point(s).':'')+'</div>':'')+(o.emptyBoards?'<div class="note">'+(o.emptyBoards===1?'One board has':'Some boards have')+' no player on either side, so no points are awarded there and the match falls short of '+TEAM_BOARDS+'.</div>':'')+(!unlocked?'<div class="note">Unlock administrator editing to make matchup-specific substitutions.</div>':'');
 }
 function pairCard(title,A,B,i,cls,matchKey){
   if(!A||!B)return"";
   return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+pairBody(A,B,matchKey)+'</div>';
 }
-var MODEL_NOTE='<details class="card model"><summary>How win odds are calculated</summary><div class="mb">Each board is predicted from a strength score for both players, then team odds are built from the board results:<ul><li><b>Live rating</b> is the baseline, compared against the official rating.</li><li><b>Delta status</b>: a higher delta adds momentum, a lower delta takes it away. A player with <b>no change</b> (or no live rating) is a wildcard, so their odds are pulled toward 50% because they could play far better or worse.</li><li><b>League points</b>: more points means a stronger recent performance.</li><li><b>Grade</b> is a very small factor: 9th is slightly less likely, rising through 11th, and 12th is a wildcard.</li><li><b>Play style and time management</b> give small matchup-specific edges (for example Tactical over Positional, Efficient clocks over Fast or Slow). All-rounder is neutral: it gains no style edge and gives up none.</li></ul></div></details>';
+var MODEL_NOTE='<details class="card model"><summary>How win odds are calculated</summary><div class="mb">Each board is predicted from a strength score for both players, then team odds are built from the board results:<ul><li><b>Live rating</b> is the baseline, compared against the official rating.</li><li><b>Delta status</b>: a higher delta adds momentum, a lower delta takes it away. A player with <b>no change</b> (or no live rating) is a wildcard, so their odds are pulled toward 50% because they could play far better or worse.</li><li><b>League points</b>: more points means a stronger recent performance.</li><li><b>Grade</b> is a very small factor: 9th is slightly less likely, rising through 11th, and 12th is a wildcard.</li><li><b>Play style and time management</b> give small matchup-specific edges (for example Tactical over Positional, Efficient clocks over Fast or Slow). All-rounder is neutral: it gains no style edge and gives up none.</li><li><b>Seven boards, seven points</b>: a team match is always seven boards, filled from each team&rsquo;s top seven players by official rating, so the points on offer always add up to seven.</li><li><b>Draws</b>: a board whose odds land within 5% of even is predicted a draw (half a point each) rather than guessing a winner. When the predicted board scores add up level the whole match is predicted a draw.</li></ul></div></details>';
 function renderMatchups(){
   var names=teams.map(function(t){return t.n});
   if(names.indexOf(mA)<0)mA=names[0];
@@ -868,8 +895,8 @@ function renderProfile(){
       '<tr><td>Play style</td><td>'+esc(p.style||'Not set')+'</td></tr>'+
       '<tr><td>Time management</td><td>'+esc(p.time||'Not set')+'</td></tr></tbody></table></div></div>';
   }else if(profileTab==="style"){
-    body='<div class="pf-grid"><div class="card"><h3>Play style</h3><select aria-label="Play style" data-pfsty="1">'+optSel(STYLES,p.style,"Not set")+'</select><p class="style-desc">'+esc(p.style?STYLE_INFO[p.style]:"Choose a play style: Positional, Defense, Tactical, Attacking or All-rounder.")+'</p><div class="style-meta">'+(p.style?(edgeText(STYLE_EDGE,p.style)?esc(edgeText(STYLE_EDGE,p.style))+' &middot; worth up to ±6 rating points in predictions':'Neutral against every style: no edge gained or given.'):'Styles add a small matchup-specific edge to predictions.')+'</div></div>'+
-      '<div class="card"><h3>Time management</h3><select aria-label="Time management" data-pftm="1">'+optSel(TIMES,p.time,"Not set")+'</select><p class="style-desc">'+esc(p.time?TIME_INFO[p.time]:"Choose how this player uses the clock: Fast, Efficient or Slow.")+'</p><div class="style-meta">'+(p.time?esc(edgeText(TIME_EDGE,p.time))+' &middot; worth up to ±4 rating points in predictions':'Time habits add a small matchup-specific edge to predictions.')+'</div></div></div>'+(unlocked?'':'<p class="note">Unlock administrator editing to change play style or time management.</p>');
+    body='<div class="pf-grid"><div class="card"><h3>Play style</h3><select aria-label="Play style" data-pfsty="1"'+toneAttr(p.style)+'>'+optSel(STYLES,p.style,"Not set")+'</select><p class="style-desc">'+esc(p.style?STYLE_INFO[p.style]:"Choose a play style: Positional, Defense, Tactical, Attacking or All-rounder.")+'</p><div class="style-meta">'+(p.style?(edgeText(STYLE_EDGE,p.style)?esc(edgeText(STYLE_EDGE,p.style))+' &middot; worth up to ±6 rating points in predictions':'Neutral against every style: no edge gained or given.'):'Styles add a small matchup-specific edge to predictions.')+'</div></div>'+
+      '<div class="card"><h3>Time management</h3><select aria-label="Time management" data-pftm="1"'+toneAttr(p.time)+'>'+optSel(TIMES,p.time,"Not set")+'</select><p class="style-desc">'+esc(p.time?TIME_INFO[p.time]:"Choose how this player uses the clock: Fast, Efficient or Slow.")+'</p><div class="style-meta">'+(p.time?esc(edgeText(TIME_EDGE,p.time))+' &middot; worth up to ±4 rating points in predictions':'Time habits add a small matchup-specific edge to predictions.')+'</div></div></div>'+(unlocked?'':'<p class="note">Unlock administrator editing to change play style or time management.</p>');
   }else{
     var teamOpts=teams.map(function(x,i){return '<option value="'+i+'"'+(x===t?' selected':'')+'>'+esc(x.n)+'</option>'}).join("");
     body='<div class="card"><h3>Edit player</h3><div class="fgrid">'+
@@ -1004,7 +1031,7 @@ document.querySelectorAll(".sort-head").forEach(function(b){b.addEventListener("
 $("fCancel").onclick=function(){$("fModal").classList.remove("show")};
 async function submitForm(another){
   var n=$("fName").value.trim();
-  if(!n){$("fErr").textContent="Enter a team name.";return}
+  if(!n){$("fErr").textContent="Enter a name.";return}
   if(fMode==="team"){
     teams.push({n:n,p:[]});save();$("fModal").classList.remove("show");return;
   }
