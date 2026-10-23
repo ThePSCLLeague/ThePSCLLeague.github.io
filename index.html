@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
 <title>Scholastic Chess League</title>
 <script>try{var t=localStorage.getItem("league-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -316,17 +316,19 @@ var DEFAULT=[
  {n:"Bodine",p:[]},{n:"New Foundations",p:[]},{n:"Swenson",p:[]},{n:"BoysLatin",p:[]},{n:"Franklin Learning Center",p:[]}
 ];
 var STATUS=["In Team","Substitute","Out Team","Unsure"],TABS=["players","standings","playoffs","pairings","matchups","manage"];
-var STYLES=["Positional","Defense","Tactical","Attacking"],TIMES=["Fast","Efficient","Slow"];
+var STYLES=["Positional","Defense","Tactical","Attacking","All-rounder"],TIMES=["Fast","Efficient","Slow"];
 var STYLE_INFO={
  Positional:"Plays for structure, space and long-term plans, slowly squeezing the opponent.",
  Defense:"Solid and resilient. Absorbs pressure, defends accurately and counterattacks.",
  Tactical:"Looks for combinations, forcing lines and concrete calculation.",
- Attacking:"Seeks the initiative early, going after the king and complicating the position."};
+ Attacking:"Seeks the initiative early, going after the king and complicating the position.",
+ "All-rounder":"Solid in every phase. No clear weapon and no clear weakness, so the game stays level in style terms."};
 var TIME_INFO={
  Fast:"Moves quickly and builds a clock lead, but can blunder when rushing.",
  Efficient:"Balanced clock use: spends time on critical moments and plays the rest smoothly.",
  Slow:"Thinks long on most moves. Accurate when time allows, but prone to time trouble."};
 // Edge (in rating points) the row style/time has against the column style/time.
+// All-rounder has no entries on purpose: it is neutral against every style (0 edge either way).
 var STYLE_EDGE={Tactical:{Positional:6,Defense:-6},Positional:{Attacking:6,Tactical:-6},Attacking:{Defense:6,Positional:-6},Defense:{Tactical:6,Attacking:-6}};
 var TIME_EDGE={Efficient:{Fast:4,Slow:4},Fast:{Efficient:-4,Slow:3},Slow:{Efficient:-4,Fast:-3}};
 var API_BASE="https://league-leaderboard-api.juggernog193-573.workers.dev";
@@ -718,7 +720,7 @@ function pairCard(title,A,B,i,cls,matchKey){
   if(!A||!B)return"";
   return '<div class="card q '+(cls||"")+'" style="--i:'+i+'"><h3>'+title+'</h3>'+pairBody(A,B,matchKey)+'</div>';
 }
-var MODEL_NOTE='<details class="card model"><summary>How win odds are calculated</summary><div class="mb">Each board is predicted from a strength score for both players, then team odds are built from the board results:<ul><li><b>Live rating</b> is the baseline, compared against the official rating.</li><li><b>Delta status</b>: a higher delta adds momentum, a lower delta takes it away. A player with <b>no change</b> (or no live rating) is a wildcard, so their odds are pulled toward 50% because they could play far better or worse.</li><li><b>League points</b>: more points means a stronger recent performance.</li><li><b>Grade</b> is a very small factor: 9th is slightly less likely, rising through 11th, and 12th is a wildcard.</li><li><b>Play style and time management</b> give small matchup-specific edges (for example Tactical over Positional, Efficient clocks over Fast or Slow).</li></ul></div></details>';
+var MODEL_NOTE='<details class="card model"><summary>How win odds are calculated</summary><div class="mb">Each board is predicted from a strength score for both players, then team odds are built from the board results:<ul><li><b>Live rating</b> is the baseline, compared against the official rating.</li><li><b>Delta status</b>: a higher delta adds momentum, a lower delta takes it away. A player with <b>no change</b> (or no live rating) is a wildcard, so their odds are pulled toward 50% because they could play far better or worse.</li><li><b>League points</b>: more points means a stronger recent performance.</li><li><b>Grade</b> is a very small factor: 9th is slightly less likely, rising through 11th, and 12th is a wildcard.</li><li><b>Play style and time management</b> give small matchup-specific edges (for example Tactical over Positional, Efficient clocks over Fast or Slow). All-rounder is neutral: it gains no style edge and gives up none.</li></ul></div></details>';
 function renderMatchups(){
   var names=teams.map(function(t){return t.n});
   if(names.indexOf(mA)<0)mA=names[0];
@@ -853,7 +855,7 @@ function renderProfile(){
       ['Delta status','<span class="s">'+esc(deltaLabel(pr.delta))+'</span>',signed(pr.momentum)],
       ['League points','<span class="s">'+f1(p.pt)+' points (capped at 8)</span>',signed(pr.pts)],
       ['Grade (tiny factor)','<span class="s">'+(pr.g?(pr.g===12?'12th grade: wildcard':pr.g+'th grade'):'Not set')+'</span>',signed(pr.grade)],
-      ['Play style','<span class="s">'+esc(p.style||"Not set")+' &middot; matchup-specific</span>','&plusmn;6 max'],
+      ['Play style','<span class="s">'+esc(p.style||"Not set")+' &middot; matchup-specific</span>',p.style?(p.style==="All-rounder"?"neutral":"&plusmn;6 max"):"—"],
       ['Time management','<span class="s">'+esc(p.time||"Not set")+' &middot; matchup-specific</span>','&plusmn;4 max'],
       ['Uncertainty','<span class="s">'+(pr.wild>0?'Wildcard: odds are pulled toward 50%':'Normal')+'</span>',pr.wild>0?'+'+Math.round(pr.wild*70)+'%':'—']
     ];
@@ -866,7 +868,7 @@ function renderProfile(){
       '<tr><td>Play style</td><td>'+esc(p.style||'Not set')+'</td></tr>'+
       '<tr><td>Time management</td><td>'+esc(p.time||'Not set')+'</td></tr></tbody></table></div></div>';
   }else if(profileTab==="style"){
-    body='<div class="pf-grid"><div class="card"><h3>Play style</h3><select aria-label="Play style" data-pfsty="1">'+optSel(STYLES,p.style,"Not set")+'</select><p class="style-desc">'+esc(p.style?STYLE_INFO[p.style]:"Choose a play style: Positional, Defense, Tactical or Attacking.")+'</p><div class="style-meta">'+(p.style?esc(edgeText(STYLE_EDGE,p.style))+' &middot; worth up to ±6 rating points in predictions':'Styles add a small matchup-specific edge to predictions.')+'</div></div>'+
+    body='<div class="pf-grid"><div class="card"><h3>Play style</h3><select aria-label="Play style" data-pfsty="1">'+optSel(STYLES,p.style,"Not set")+'</select><p class="style-desc">'+esc(p.style?STYLE_INFO[p.style]:"Choose a play style: Positional, Defense, Tactical, Attacking or All-rounder.")+'</p><div class="style-meta">'+(p.style?(edgeText(STYLE_EDGE,p.style)?esc(edgeText(STYLE_EDGE,p.style))+' &middot; worth up to ±6 rating points in predictions':'Neutral against every style: no edge gained or given.'):'Styles add a small matchup-specific edge to predictions.')+'</div></div>'+
       '<div class="card"><h3>Time management</h3><select aria-label="Time management" data-pftm="1">'+optSel(TIMES,p.time,"Not set")+'</select><p class="style-desc">'+esc(p.time?TIME_INFO[p.time]:"Choose how this player uses the clock: Fast, Efficient or Slow.")+'</p><div class="style-meta">'+(p.time?esc(edgeText(TIME_EDGE,p.time))+' &middot; worth up to ±4 rating points in predictions':'Time habits add a small matchup-specific edge to predictions.')+'</div></div></div>'+(unlocked?'':'<p class="note">Unlock administrator editing to change play style or time management.</p>');
   }else{
     var teamOpts=teams.map(function(x,i){return '<option value="'+i+'"'+(x===t?' selected':'')+'>'+esc(x.n)+'</option>'}).join("");
@@ -1002,7 +1004,7 @@ document.querySelectorAll(".sort-head").forEach(function(b){b.addEventListener("
 $("fCancel").onclick=function(){$("fModal").classList.remove("show")};
 async function submitForm(another){
   var n=$("fName").value.trim();
-  if(!n){$("fErr").textContent="Enter a name.";return}
+  if(!n){$("fErr").textContent="Enter a team name.";return}
   if(fMode==="team"){
     teams.push({n:n,p:[]});save();$("fModal").classList.remove("show");return;
   }
