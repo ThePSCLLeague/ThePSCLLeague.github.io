@@ -75,7 +75,7 @@ td.n,th.n{text-align:right}td b{font-weight:600}td:first-child,th:first-child{wi
 .sch-m{display:none}.sort-head{height:auto;padding:0;gap:4px;border:0;background:none;color:inherit;font:inherit;border-radius:0}
 .sort-head:hover{background:none;color:var(--text)}.sort-head span{color:var(--faint);font-size:12px}
 .rating-cell{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
-.rating-delta{font-size:11px;font-weight:600;padding:1px 5px;border-radius:var(--r-s);line-height:1.4}
+.rating-delta{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:22px;height:18px;font-size:11px;font-weight:600;padding:0 7px;border-radius:999px;line-height:1}.rating-delta.flat{color:var(--muted);background:var(--raised);border:1px solid var(--line)}
 .rating-delta.up{color:var(--in);background:color-mix(in srgb,var(--in) 12%,transparent)}.rating-delta.down{color:var(--out);background:color-mix(in srgb,var(--out) 12%,transparent)}
 .badge{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:var(--r-s);background:var(--raised);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:600}
 .badge.g1{--m:#c8962b}.badge.g2{--m:#8a96a8}.badge.g3{--m:#b7703f}
@@ -483,6 +483,12 @@ async function refreshLiveRatings(automatic){
   }catch(e){ratingLookupStatus="Could not load CheckChesser ratings: "+e.message;if(!automatic)toast("Live-rating sync failed");}
   finally{ratingLookupBusy=false;renderPlayers();renderTeams();renderStandings();renderMatchups();renderPairings();bar()}
 }
+function deltaPill(d){
+  if(d===null||!Number.isFinite(d))return"";
+  var tri=function(p){return '<svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true"><path d="'+p+'" fill="currentColor"/></svg>'};
+  if(d===0)return '<span class="rating-delta flat" title="No change from official rating" aria-label="No change from official rating"><svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true"><path d="M2.5 6h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></span>';
+  return '<span class="rating-delta '+(d>0?'up':'down')+'" title="'+(d>0?'+':'−')+Math.abs(d)+' vs official rating">'+tri(d>0?"M6 2l4.5 7h-9z":"M6 10L1.5 3h9z")+Math.abs(d)+'</span>';
+}
 function renderPlayers(){
   var all=[];teams.forEach(function(t,ti){t.p.forEach(function(p,pi){all.push({p:p,t:t.n,ti:ti,pi:pi})})});
   var search=normalizePlayerName($("rankSearch")?$("rankSearch").value:""),schoolFilter=$("rankSchool")?$("rankSchool").value:"";
@@ -503,8 +509,8 @@ function renderPlayers(){
     var lr=found&&Number.isFinite(Number(found.live_rating))?Number(found.live_rating):(Number.isFinite(Number(x.p.liveRating))?Number(x.p.liveRating):null);
     var official=found&&Number.isFinite(Number(found.official_rating))?Number(found.official_rating):(Number.isFinite(Number(x.p.r))?Number(x.p.r):null);
     var grade=found&&found.grade!=null?found.grade:(x.p.grade||"—");
-    var delta=found&&found.delta_live_rating!=null?Number(found.delta_live_rating):(Number.isFinite(Number(x.p.deltaLiveRating))?Number(x.p.deltaLiveRating):null);
-    var liveDisplay=lr===null||lr<=0?'Unrated':'<span class="rating-cell"><span>'+lr+'</span>'+(delta!==null&&Number.isFinite(delta)&&delta!==0?'<span class="rating-delta '+(delta>0?'up':'down')+'">'+(delta>0?'▲':'▼')+Math.abs(Math.round(delta))+'</span>':'')+'</span>';
+    var delta=(lr!==null&&lr>0&&official!==null&&official>0)?Math.round(lr-official):null;
+    var liveDisplay=lr===null||lr<=0?'Unrated':'<span class="rating-cell"><span>'+lr+'</span>'+deltaPill(delta)+'</span>';
     return '<tr><td><span class="badge '+(i===0?'g1':i===1?'g2':i===2?'g3':'')+'">'+(i+1)+'</span></td><td><b>'+profile+'</b><span class="sch-m">'+esc(x.t)+'</span></td><td class="sch">'+esc(x.t)+'</td><td>'+esc(grade===""?"—":String(grade))+'</td><td class="n">'+(official===null||official<=0?'Unrated':official)+'</td><td class="n">'+liveDisplay+'</td><td class="n">'+ed(x.ti,x.pi,"pt",f1(x.p.pt))+'</td></tr>';
   }).join(""):'<tr><td colspan="7" class="empty">No players match these filters.</td></tr>';
   var note=$("liveRatingNote");if(note)note.textContent=ratingLookupAt?"Last updated "+new Date(ratingLookupAt).toLocaleString():"Ratings update automatically while this page is open.";
