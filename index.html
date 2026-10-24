@@ -341,7 +341,7 @@ var TIME_INFO={
 // All-rounder has no entries on purpose: it is neutral against every style (0 edge either way).
 var STYLE_EDGE={Tactical:{Positional:6,Defense:-6},Positional:{Attacking:6,Tactical:-6},Attacking:{Defense:6,Positional:-6},Defense:{Tactical:6,Attacking:-6}};
 var TIME_EDGE={Efficient:{Fast:4,Slow:4},Fast:{Efficient:-4,Slow:3},Slow:{Efficient:-4,Fast:-3}};
-var API_BASE="https://league-leaderboard-api.juggernog193-573.workers.dev";
+var _BASE="https://league-leaderboard-api.juggernog193-573.workers.dev";
 var CC_URL="https://redcomp16-checkchesser-backend.hf.space/api/players/";
 var teams=JSON.parse(JSON.stringify(DEFAULT)),round=0,unlocked=false,adminPassword=null,live=false,pending=null,picks={},fMode="",flash=null,tt,checkChesserPlayers=[],ccIndex=null,ratingLookupAt=null,ratingLookupStatus="Not checked yet",ratingLookupBusy=false,dirty=false,savedJson=JSON.stringify(DEFAULT),savedRound=0,savedPicksJson="{}",remoteUpdatedAt=null,mA=null,mB=null,statusMessage="Connecting to shared database…",pollTimer=null;
 var topSet=new Set(),topHasPts=false,profileRef=null,profileTab="stats",profileDirty=false;
