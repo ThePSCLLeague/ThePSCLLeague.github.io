@@ -1013,6 +1013,10 @@ var TEAM_BOARDS=7;
 // share one identifier: the board number. The lineup is never re-sorted after a
 // substitution, which is what used to detach a substitute from their board.
 function fmtScore(v){return Number.isInteger(v)?String(v):v.toFixed(1)}
+// Board 1 is the strongest player in the lineup. A substitute is chosen for a regular
+// player's slot, but once chosen the whole lineup is re-sorted by rating, so a stronger
+// sub moves up and a weaker one moves down. The slot number stays attached to each entry
+// as the key for the saved substitution; `board` is the position shown in the table.
 function boards(t,matchKey,slots){
   var active=t.p.filter(function(x){return x.s==="In Team"}).sort(function(a,b){return officialRating(b)-officialRating(a)||num(b.pt)-num(a.pt)||a.n.localeCompare(b.n)}).slice(0,TEAM_BOARDS);
   var n=Math.min(TEAM_BOARDS,Math.max(active.length,Math.min(slots||0,TEAM_BOARDS))),out=[],used={};
@@ -1024,6 +1028,13 @@ function boards(t,matchKey,slots){
     if(sub)used[sub.n]=true;
     out.push({slot:i+1,base:base,p:sub||base,sub:!!sub});
   }
+  out.sort(function(a,b){
+    if(!a.p&&!b.p)return a.slot-b.slot;
+    if(!a.p)return 1;
+    if(!b.p)return -1;
+    return officialRating(b.p)-officialRating(a.p)||num(b.p.pt)-num(a.p.pt)||a.p.n.localeCompare(b.p.n)||a.slot-b.slot;
+  });
+  out.forEach(function(e,i){e.board=i+1});
   return out;
 }
 /* How the three board results are derived.
@@ -1464,7 +1475,7 @@ function substituteSelect(t,matchKey,e){
   var board=e.slot,selected=picks[subKey(matchKey,t.n,board)]||"";
   var subs=t.p.filter(function(p){return p.s==="Substitute"}).slice().sort(function(a,b){return officialRating(b)-officialRating(a)||a.n.localeCompare(b.n)});
   var label=e.base?(e.sub?'Use regular: '+esc(e.base.n):'No substitute'):'No regular player';
-  return '<select class="substitution-select" data-sub-match="'+encodeURIComponent(matchKey)+'" data-sub-team="'+encodeURIComponent(t.n)+'" data-sub-board="'+board+'"'+(unlocked?'':' disabled title="Unlock administrator editing to use substitutes"')+' aria-label="Substitute for '+escAttr(teamName(t))+' on board '+board+'"><option value="">'+label+'</option>'+subs.map(function(p){return '<option value="'+escAttr(p.n)+'"'+(selected===p.n?' selected':'')+'>'+esc(p.n)+' ('+(officialRating(p)||'Unrated')+')</option>'}).join("")+'</select>';
+  return '<select class="substitution-select" data-sub-match="'+encodeURIComponent(matchKey)+'" data-sub-team="'+encodeURIComponent(t.n)+'" data-sub-board="'+board+'"'+(unlocked?'':' disabled title="Unlock administrator editing to use substitutes"')+' aria-label="Substitute for '+escAttr(teamName(t))+' on board '+(e.board||board)+'"><option value="">'+label+'</option>'+subs.map(function(p){return '<option value="'+escAttr(p.n)+'"'+(selected===p.n?' selected':'')+'>'+esc(p.n)+' ('+(officialRating(p)||'Unrated')+')</option>'}).join("")+'</select>';
 }
 function ratingOf(p){var v=curRating(p);return v>0?v:0}
 // A colour dot sits immediately before every player's name. It carries a tooltip and an
