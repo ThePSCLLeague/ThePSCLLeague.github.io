@@ -510,6 +510,41 @@ tbody tr:hover{background:color-mix(in srgb,var(--accent) 4%,var(--surface))}
 .standings-table tr.adv-wc td{background:color-mix(in srgb,var(--sub) 6%,var(--surface))}
 .standings-table tr.adv-wc td:first-child{box-shadow:inset 4px 0 0 var(--sub)}
 .lg.bye{--c:var(--in)}.lg.wc{--c:var(--sub)}
+:root{--font:"Helvetica Neue",Helvetica,Arial,"Nimbus Sans",sans-serif}
+body{font-family:var(--font);font-feature-settings:"tnum"}
+button,input,select{font-family:inherit}
+  /* Cleaner type with Helvetica */
+body{font-size:15px;line-height:1.5;letter-spacing:-.003em;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+/* Helvetica has 400 and 700 only: use bold sparingly, lean on size and colour for hierarchy */
+h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}
+.section-heading h2{font-size:28px;font-weight:700;letter-spacing:-.035em}
+.brand h1{font-size:16px;letter-spacing:-.02em}
+.card>h3{font-size:15px}
+
+/* Medium-weight UI text becomes regular, so only real emphasis is bold */
+button,.tab,.chip,select.stsel,.section-count,.advance-label,.pill,.navlabel{font-weight:400}
+.tab.on{font-weight:700}
+button.primary{font-weight:700}
+td b,.plink,.badge,.res,.top-badge,.mini-tag,.rating-delta{font-weight:700}
+
+/* Small caps-style labels: quiet, wide-tracked, uppercase */
+.navlabel,th{font-size:11px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+th .s,th span{text-transform:none;letter-spacing:0}
+.ph-sub,.mini-tag{letter-spacing:.08em}
+
+/* Secondary text */
+.s,.note,.wdl,.wdl-num,.sprev{color:var(--muted);font-size:12.5px;line-height:1.45}
+.note{font-size:13.5px;line-height:1.6;max-width:72ch}
+
+/* Numbers: aligned digits everywhere, slightly larger score figures */
+table,.ph-score,.tile .v,.rating-cell,.mrate,.badge{font-variant-numeric:tabular-nums lining-nums}
+.ph-score{font-size:32px;font-weight:700;letter-spacing:-.04em}
+.tile .v{font-size:26px;font-weight:700;letter-spacing:-.03em}
+
+/* Inputs */
+input,select{font-size:14px;letter-spacing:0}
+::placeholder{letter-spacing:0}
 </style>
 
 
