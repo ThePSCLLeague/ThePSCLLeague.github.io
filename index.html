@@ -5,8 +5,7 @@
 <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
 <title>Scholastic Chess League</title>
 <script>try{var t=localStorage.getItem("league-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+
 <!-- Start of the style -->
 <style>
 :root{--bg:#f6f7f9;--surface:#fff;--raised:#f1f3f6;--hover:#f5f7fa;--text:#151a21;--muted:#5d6775;--faint:#8b95a3;--line:#e4e7ec;--line-2:#d3d8df;--accent:#2a58d6;--on-accent:#fff;--in:#17743f;--sub:#2a58d6;--out:#b8323a;--unsure:#9a5b08;--sh:0 1px 2px rgba(16,24,40,.05);--pop:0 10px 30px rgba(16,24,40,.16);--r-s:8px;--r-m:10px;--r-l:16px;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
@@ -513,7 +512,7 @@ tbody tr:hover{background:color-mix(in srgb,var(--accent) 4%,var(--surface))}
 :root{--font:"Helvetica Neue",Helvetica,Arial,"Nimbus Sans",sans-serif}
 body{font-family:var(--font);font-feature-settings:"tnum"}
 button,input,select{font-family:inherit}
-  /* Cleaner type with Helvetica */
+/* Cleaner type with Helvetica */
 body{font-size:15px;line-height:1.5;letter-spacing:-.003em;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 
 /* Helvetica has 400 and 700 only: use bold sparingly, lean on size and colour for hierarchy */
@@ -545,6 +544,22 @@ table,.ph-score,.tile .v,.rating-cell,.mrate,.badge{font-variant-numeric:tabular
 /* Inputs */
 input,select{font-size:14px;letter-spacing:0}
 ::placeholder{letter-spacing:0}
+/* ---------- Chess.com leaderboard tab (scoped) ---------- */
+#chessboard .cb-form{display:flex;gap:12px;flex-wrap:wrap}
+#chessboard .cb-form input{flex:1 1 260px;width:auto}
+#chessboard .cb-form button{flex:none}
+#chessboard .cb-controls{display:inline-flex;gap:10px;flex-wrap:wrap;align-items:center}
+#chessboard .cb-controls select{width:auto;min-width:130px;border-radius:999px}
+#chessboard .cb-controls button{border-radius:999px}
+#chessboard .cb-msg{min-height:20px;margin:12px 0 0;font-size:13px;color:var(--muted)}
+#chessboard .cb-msg.error{color:var(--out)}
+#chessboard .cb-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+#chessboard .cb-table{min-width:560px}
+#chessboard .cb-player{display:flex;align-items:center;gap:12px;min-width:190px}
+#chessboard .cb-avatar{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;overflow:hidden;font-size:14px;font-weight:600;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
+#chessboard .cb-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+#chessboard .cb-empty{padding:40px 16px;text-align:center;color:var(--muted)}
+#chessboard .cb-empty strong{display:block;color:var(--text);margin-bottom:4px}
 </style>
 
 
@@ -567,6 +582,7 @@ input,select{font-size:14px;letter-spacing:0}
 <button class="tab on" data-tab="players" type="button">Players</button>
 <button class="tab" data-tab="standings" type="button">Teams</button>
 <button class="tab" data-tab="playoffs" type="button">Playoffs</button>
+<button class="tab" data-tab="chessboard" type="button">Chess.com</button>
 </div></div>
 <div class="navgroup"><div class="navlabel">Predictions</div>
 <div class="tabs" role="group" aria-label="Predictions">
@@ -636,6 +652,35 @@ input,select{font-size:14px;letter-spacing:0}
 <div class="search manage-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input aria-label="Search teams to edit" id="manageSearch" placeholder="Search for a team to edit" type="search" autocomplete="off"/></div>
 <div id="manageOut" class="stack"></div>
 </section>
+<section class="hidden" id="chessboard">
+<div class="section-heading"><h2>Chess.com leaderboard</h2><span class="section-count"><span id="cbCount">0</span> players</span></div>
+<div class="pf-tiles">
+<div class="tile"><div class="k">Players tracked</div><div class="v" id="cbPlayers">0</div></div>
+<div class="tile"><div class="k">Top rating</div><div class="v" id="cbTop">—</div></div>
+<div class="tile"><div class="k">Rating category</div><div class="v" id="cbCatLabel">Blitz</div></div>
+</div>
+<div class="stack">
+<div class="card">
+<h3><span>Add a player</span><span class="s">Search by exact Chess.com username</span></h3>
+<form class="cb-form" id="cbForm" autocomplete="off">
+<input id="cbInput" type="text" placeholder="e.g. hikaru" aria-label="Chess.com username" autocapitalize="none" spellcheck="false" maxlength="40" required/>
+<button class="primary" id="cbLookup" type="submit">Look up player</button>
+</form>
+<p class="cb-msg" id="cbLookupMsg" role="status" aria-live="polite"></p>
+</div>
+<div class="card">
+<h3><span>Leaderboard <span class="s">&middot; sorted by current rating</span></span>
+<span class="cb-controls">
+<select id="cbCategory" aria-label="Rating category"><option value="chess_blitz">Blitz</option><option value="chess_rapid">Rapid</option><option value="chess_bullet">Bullet</option><option value="chess_daily">Daily</option></select>
+<button id="cbRefresh" type="button">Refresh</button>
+</span></h3>
+<div id="cbTable"></div>
+<p class="cb-msg" id="cbListMsg" role="status" aria-live="polite"></p>
+<div class="cb-foot"><span class="s">Saved in this browser on this device</span><button class="sm" id="cbClear" type="button">Clear leaderboard</button></div>
+</div>
+</div>
+<p class="note">Data comes from Chess.com&rsquo;s public read-only API. Ratings may be unavailable for players who have not played a category, and Chess.com may cache public data, so a refresh may not show an immediate change.</p>
+</section>
 </main>
 
 <div class="profile hidden" id="profile" role="dialog" aria-modal="true" aria-label="Player profile">
@@ -697,7 +742,7 @@ var DEFAULT=[
   {n:"Johnfer Quispe",r:1128,pt:0,s:"In Team"},{n:"Faadi Garcia",r:1587,pt:0,s:"Out Team"}]},
  {n:"Bodine",p:[]},{n:"New Foundations",p:[]},{n:"Swenson",p:[]},{n:"BoysLatin",p:[]},{n:"Franklin Learning Center",p:[]}
 ];
-var STATUS=["In Team","Substitute","Out Team","Unsure"],TABS=["players","standings","playoffs","pairings","matchups","manage"];
+var STATUS=["In Team","Substitute","Out Team","Unsure"],TABS=["players","standings","playoffs","pairings","matchups","manage", "chessboard"];
 var STYLES=["Positional","Defense","Tactical","Attacking","All-rounder"],TIMES=["Fast","Efficient","Slow"];
 var STYLE_INFO={
  Positional:"Plays for structure, space and long-term plans, slowly squeezing the opponent.",
@@ -1977,8 +2022,155 @@ function show(id){
     if(s===id){void el.offsetWidth;el.classList.add("enter")}
   });
 }
+
 document.querySelectorAll(".tab[data-tab]").forEach(function(b){b.onclick=function(){gotoTab(b.dataset.tab)}});
 (function(){var t=null;try{t=localStorage.getItem("league-tab")}catch(e){}if(t&&TABS.indexOf(t)>=0&&t!=="players")show(t)})();
+})();
+
+</script>
+<script>
+(function(){
+  var KEY="league-chess-leaderboard-v1";
+  var CATS={chess_blitz:"Blitz",chess_rapid:"Rapid",chess_bullet:"Bullet",chess_daily:"Daily"};
+  var API="https://api.chess.com/pub/player/";
+  var X_ICON='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  var $=function(id){return document.getElementById(id)};
+  var players=load(),busy=false,tt;
+
+  function load(){
+    try{var v=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(v)?v.filter(function(p){return p&&typeof p.username==="string"}):[]}
+    catch(e){return[]}
+  }
+  function persist(){
+    try{localStorage.setItem(KEY,JSON.stringify(players))}
+    catch(e){say("cbListMsg","Could not save to this browser. Storage may be full or disabled.","error")}
+  }
+  function say(id,text,kind){var el=$(id);el.textContent=text;el.className="cb-msg"+(kind?" "+kind:"")}
+  // Same toast the rest of the site uses.
+  function toast(m){var t=$("toast");if(!t)return;t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show")},2200)}
+  function cat(){return $("cbCategory").value}
+  function ratingOf(p,c){var s=p.stats&&p.stats[c],v=s&&s.last&&s.last.rating;return typeof v==="number"&&isFinite(v)?v:null}
+  function recordOf(p,c){var s=p.stats&&p.stats[c],r=s&&s.record;if(!r)return"—";return (r.win||0)+"W · "+(r.draw||0)+"D · "+(r.loss||0)+"L"}
+  function safeUrl(u,fallback){return typeof u==="string"&&/^https:\/\/([a-z0-9-]+\.)*chess\.com\//i.test(u)?u:fallback}
+  function safeImg(u){return typeof u==="string"&&/^https:\/\//i.test(u)?u:""}
+  function same(a,b){return a.toLowerCase()===b.toLowerCase()}
+
+  async function getJson(path,notFound){
+    var r=await fetch(API+path,{headers:{Accept:"application/json"}});
+    if(r.status===404)throw new Error(notFound);
+    if(r.status===429)throw new Error("Chess.com is rate-limiting requests. Please wait a little and try again.");
+    if(!r.ok)throw new Error("Chess.com request failed (HTTP "+r.status+"). Try again later.");
+    return r.json();
+  }
+
+  async function add(raw){
+    var name=raw.trim().replace(/^@/,"");
+    if(!name)return;
+    if(!/^[A-Za-z0-9_-]{2,40}$/.test(name)){say("cbLookupMsg","Chess.com usernames use letters, numbers, underscores and hyphens only.","error");return}
+    if(players.some(function(p){return same(p.username,name)})){say("cbLookupMsg",name+" is already on the leaderboard.");return}
+    $("cbLookup").disabled=true;say("cbLookupMsg","Looking up "+name+"…");
+    try{
+      var key=encodeURIComponent(name.toLowerCase());
+      var profile=await getJson(key,"That username was not found. Check the spelling and try again.");
+      var stats=await getJson(key+"/stats","The profile was found, but its stats could not be loaded right now.");
+      var uname=typeof profile.username==="string"&&profile.username?profile.username:name;
+      players.push({
+        username:uname,
+        name:typeof profile.name==="string"?profile.name:"",
+        title:typeof profile.title==="string"?profile.title:"",
+        avatar:safeImg(profile.avatar),
+        url:safeUrl(profile.url,"https://www.chess.com/member/"+encodeURIComponent(uname)),
+        stats:stats,addedAt:Date.now()
+      });
+      persist();render();$("cbInput").value="";
+      say("cbLookupMsg","");toast("Added "+uname);
+    }catch(e){say("cbLookupMsg",e.message||"Something went wrong while looking up that player.","error")}
+    finally{$("cbLookup").disabled=false}
+  }
+
+  function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+
+  function render(){
+    var c=cat();
+    var sorted=players.slice().sort(function(a,b){
+      var ra=ratingOf(a,c),rb=ratingOf(b,c);
+      return (rb===null?-1:rb)-(ra===null?-1:ra)||a.username.localeCompare(b.username);
+    });
+    $("cbCount").textContent=players.length.toLocaleString();
+    $("cbPlayers").textContent=players.length.toLocaleString();
+    var top=sorted.length?ratingOf(sorted[0],c):null;
+    $("cbTop").textContent=top===null?"Unrated":String(top);
+    $("cbCatLabel").textContent=CATS[c];
+    var area=$("cbTable");
+    if(!sorted.length){
+      var empty=el("div","cb-empty");
+      empty.appendChild(el("strong",null,"Your leaderboard is waiting"));
+      empty.appendChild(document.createTextNode("Look up a Chess.com username above to add your first player."));
+      area.replaceChildren(empty);return;
+    }
+    var table=el("table","cb-table");
+    var head=el("thead");var hr=el("tr");
+    [["#",""],["Player",""],["Rating","n"],["Record",""],["",""]].forEach(function(h){hr.appendChild(el("th",h[1],h[0]))});
+    head.appendChild(hr);table.appendChild(head);
+    var body=el("tbody");
+    sorted.forEach(function(p,i){
+      var tr=el("tr");
+      var td1=el("td");td1.appendChild(el("span","badge"+(i===0?" g1":i===1?" g2":i===2?" g3":""),String(i+1)));
+      var td2=el("td");var box=el("div","cb-player");
+      var av=el("div","cb-avatar");
+      var initial=p.username.slice(0,1).toUpperCase();
+      if(p.avatar){var img=el("img");img.src=p.avatar;img.alt="";img.loading="lazy";img.onerror=function(){img.remove();av.textContent=initial};av.appendChild(img)}
+      else av.textContent=initial;
+      var info=el("div");
+      var line=el("div");
+      var b=el("b");
+      var a=el("a","plink",p.username);a.href=safeUrl(p.url,"https://www.chess.com/member/"+encodeURIComponent(p.username));a.target="_blank";a.rel="noopener noreferrer";
+      b.appendChild(a);line.appendChild(b);
+      if(p.title)line.appendChild(el("span","top-badge",p.title));
+      info.appendChild(line);info.appendChild(el("div","s",p.name||"Chess.com player"));
+      box.appendChild(av);box.appendChild(info);td2.appendChild(box);
+      var r=ratingOf(p,c);
+      var td3=el("td","n",r===null?"Unrated":String(r));
+      var td4=el("td");td4.appendChild(el("span","s",recordOf(p,c)));
+      var td5=el("td","n");var rm=el("button","x");rm.type="button";rm.innerHTML=X_ICON;rm.title="Remove player";rm.setAttribute("aria-label","Remove "+p.username);
+      rm.addEventListener("click",function(){
+        players=players.filter(function(x){return !same(x.username,p.username)});
+        persist();render();say("cbListMsg","");toast("Removed "+p.username);
+      });
+      td5.appendChild(rm);
+      tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);tr.appendChild(td4);tr.appendChild(td5);body.appendChild(tr);
+    });
+    table.appendChild(body);
+    var wrap=el("div","scroll flat");wrap.appendChild(table);area.replaceChildren(wrap);
+  }
+
+  async function refreshAll(){
+    if(busy)return;
+    if(!players.length){say("cbListMsg","Add a player before refreshing.");return}
+    busy=true;$("cbRefresh").disabled=true;say("cbListMsg","Refreshing player stats…");
+    var updated=0,failed=0;
+    // One at a time, to stay within Chess.com's request limits.
+    for(var i=0;i<players.length;i++){
+      var name=players[i].username;
+      try{
+        var stats=await getJson(encodeURIComponent(name.toLowerCase())+"/stats","Stats not found.");
+        var found=players.filter(function(p){return same(p.username,name)})[0];
+        if(found){found.stats=stats;updated++}
+      }catch(e){failed++}
+    }
+    persist();render();busy=false;$("cbRefresh").disabled=false;
+    if(failed)say("cbListMsg",failed+" player(s) could not be refreshed. Their previous ratings were kept.","error");
+    else{say("cbListMsg","");toast("Refreshed "+updated+" player"+(updated===1?"":"s"))}
+  }
+
+  $("cbForm").addEventListener("submit",function(e){e.preventDefault();add($("cbInput").value)});
+  $("cbCategory").addEventListener("change",function(){render();say("cbListMsg","")});
+  $("cbRefresh").addEventListener("click",refreshAll);
+  $("cbClear").addEventListener("click",function(){
+    if(!players.length)return;
+    if(confirm("Remove every player from this browser’s Chess.com leaderboard?")){players=[];persist();render();say("cbListMsg","");toast("Leaderboard cleared")}
+  });
+  render();
 })();
 </script>
 </body>
