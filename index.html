@@ -1690,7 +1690,7 @@ function applyStandingsImport(){
   // round, so last round's attendance marks are cleared.
   drop.players.forEach(function(x){var at=x.t.p.indexOf(x.p);if(at>=0)x.t.p.splice(at,1)});
   drop.teams.forEach(function(t){var at=teams.indexOf(t);if(at>=0)teams.splice(at,1)});
-  teams.forEach(function(t){t.p.forEach(function(p){if(p.avail!==undefined)delete p.avail})});
+  teams.forEach(function(t){t.p.forEach(function(p){delete p.avail;delete p.availFor})});
   applyDefaultRosterStatuses();
   round=Math.max(round,impParsed.rounds||0);
   importSummary="Standings PDF: "+added+" added \u00b7 "+updated+" updated"+(plan.newTeams.length?" \u00b7 "+plan.newTeams.length+" new school(s)":"")+(drop.players.length?" \u00b7 "+drop.players.length+" removed":"")+".";
@@ -1903,7 +1903,7 @@ function playerPool(){
   var pool=[];
   teams.forEach(function(t){
     t.p.forEach(function(p){
-      if(p.s!=="In Team"||p.avail===false)return;
+      if(p.s!=="In Team"||p.availFor===round+1)return;
       pool.push({p:p,t:t,name:p.n,pts:num(p.pt),r:curRating(p)});
     });
   });
@@ -1962,30 +1962,30 @@ function playerPairs(){
 function availBtn(e){
   var ix=profIdx(e.p);
   if(!ix)return"";
-  return '<button class="sm avail-btn" type="button" data-avail="'+escAttr(ix)+'"'+(unlocked?'':' disabled')+' title="'+(unlocked?"Mark "+escAttr(e.p.n)+" as not playing this round":"Unlock administrator editing to change who is playing this round")+'">Not playing</button>';
+  return '<button class="sm avail-btn" type="button" data-avail="'+escAttr(ix)+'"'+(unlocked?'':' disabled')+' title="'+(unlocked?"Mark "+escAttr(e.p.n)+" as not playing Round "+(round+1):"Unlock administrator editing to change who is playing this round")+'">Not playing</button>';
 }
 function absentEntries(){
   var out=[];
-  teams.forEach(function(t){t.p.forEach(function(p){if(p.s==="In Team"&&p.avail===false)out.push({p:p,t:t,pts:num(p.pt),r:curRating(p)})})});
+  teams.forEach(function(t){t.p.forEach(function(p){if(p.s==="In Team"&&p.availFor===round+1)out.push({p:p,t:t,pts:num(p.pt),r:curRating(p)})})});
   return out.sort(function(a,b){return b.pts-a.pts||a.p.n.localeCompare(b.p.n)});
 }
 function availRows(){
   var list=absentEntries();
   if(!list.length)return"";
-  return '<div class="card"><h3><span>Not playing this round</span><span class="s">'+list.length+' player'+(list.length===1?"":"s")+'</span></h3><div class="avail-list">'+
+  return '<div class="card"><h3><span>Not playing Round '+(round+1)+'</span><span class="s">'+list.length+' player'+(list.length===1?"":"s")+'</span></h3><div class="avail-list">'+
     list.map(function(e){
       return '<div class="avail-row"><span>'+pLink(e.p)+' <span class="s">'+esc(teamName(e.t))+' &middot; '+f1(e.pts)+' pts &middot; '+(e.r||'Unrated')+'</span></span><button class="sm" type="button" data-avail="'+escAttr(profIdx(e.p))+'">Playing</button></div>';
     }).join("")+
-    '</div><p class="note" style="margin:10px 0 0">These players are left out of the predicted pairings and from the bye. Choose Playing when they confirm they can attend.</p></div>';
+    '</div><p class="note" style="margin:10px 0 0">These players are left out of these pairings and from the bye. The mark belongs to Round '+(round+1)+' only: everyone returns automatically once that round is completed, and Playing adds a player back now.</p></div>';
 }
 function toggleAvail(ix){
   need(function(){
     var pp=String(ix).split(":"),t=teams[+pp[0]],p=t&&t.p[+pp[1]];
     if(!p)return;
-    var back=p.avail===false;
-    if(back)delete p.avail;else p.avail=false;
+    var next=round+1,back=p.availFor===next;
+    if(back)delete p.availFor;else p.availFor=next;
     save();
-    toast(back?p.n+" is playing this round":p.n+" is not playing this round");
+    toast(back?p.n+" is playing Round "+next:p.n+" is not playing Round "+next);
   });
 }
 function renderPairings(){
@@ -2013,7 +2013,7 @@ function renderPairings(){
   var bye=res.bye?'<div class="card"><h3>Bye</h3><p class="note" style="margin:0">'+pLink(res.bye.p)+' <span class="s">'+esc(teamName(res.bye.t))+' &middot; '+f1(res.bye.pts)+' pts</span> has no opponent this round because the player pool is odd.</p>'+availBtn(res.bye)+'</div>':'';
   var warn=res.unresolved?'<p class="note">'+res.unresolved+' table(s) still pair teammates because no alternate opponent was available; a real draw would reshuffle those players.</p>':'';
   $("pairOut").innerHTML=MODEL_NOTE+'<div class="stack">'+cards+bye+availRows()+'</div>'+warn+
-    '<p class="note">These pairings and their results are <b>predictions</b>, not an official draw. They are built from each player&rsquo;s own league points ('+res.pool+' players in the pool'+(absent.length?", "+absent.length+" marked not playing":'')+'): players are grouped by points, then the top half of each group plays the bottom half by rating, and opponents are swapped where needed so teammates do not meet. The first-listed player on a table is read as White, so 1&ndash;0 and 0&ndash;1 are stated from their side; team colours are set separately by the T-4 rule. Mark a player &ldquo;Not playing&rdquo; to leave them out, and &ldquo;Playing&rdquo; to add them back; attendance is saved with the league data and clears when a new standings report is imported.</p>';
+    '<p class="note">These pairings and their results are <b>predictions</b>, not an official draw. They are built from each player&rsquo;s own league points ('+res.pool+' players in the pool'+(absent.length?", "+absent.length+" marked not playing":'')+'): players are grouped by points, then the top half of each group plays the bottom half by rating, and opponents are swapped where needed so teammates do not meet. The first-listed player on a table is read as White, so 1&ndash;0 and 0&ndash;1 are stated from their side; team colours are set separately by the T-4 rule. Mark a player &ldquo;Not playing&rdquo; to leave them out of this round&rsquo;s pairings, and &ldquo;Playing&rdquo; to add them back; the mark is saved with the league data for Round '+(round+1)+' only and clears by itself once the round is completed.</p>';
 }
 
 /* ---------- player profile ---------- */
