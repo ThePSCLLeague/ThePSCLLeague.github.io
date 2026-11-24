@@ -471,6 +471,13 @@ select.stsel:disabled{cursor:not-allowed}
 .substitution-select:disabled{opacity:.7;cursor:not-allowed}
 .pred-table .substitution-select{margin-top:6px;max-width:190px}
 
+/* pairings attendance */
+.avail-btn{height:26px;margin-top:7px;padding:0 10px;font-size:12px;border-radius:999px}
+.avail-list{display:grid}
+.avail-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.avail-row:last-child{border-bottom:0}
+.avail-row .s{display:block;margin-top:2px}
+
 /* how-it-works panel */
 .model{padding:0;margin-bottom:24px}
 .model>summary{cursor:pointer;padding:16px 24px;font-weight:600;font-size:14.5px}
@@ -752,7 +759,7 @@ select.stsel:disabled{cursor:not-allowed}
 <p class="note">Search for a team to view and edit its roster. Editing requires administrator sign-in; changes are saved from the bar at the bottom.</p>
 <div class="card imp" id="importCard">
 <h3><span>Import standings PDF</span><span class="s">Round results from the league report</span></h3>
-<p class="note s" style="margin:0">Choose or drop the standings PDF and check the preview. Each player&rsquo;s school, US Chess ID, rating, grade, round results and score are read from the file; nothing is written until you press Import, which needs administrator sign-in.</p>
+<p class="note s" style="margin:0">Choose or drop the standings PDF and check the preview. Each player&rsquo;s school, US Chess ID, rating, grade, round results and score are read from the file. The report is the league roster: players and schools that are not in it are removed when you import, so every leaderboard, standing, pairing and profile only shows the report&rsquo;s field. Nothing is written until you press Import, which needs administrator sign-in.</p>
 <div class="filters">
 <input id="impFile" type="file" accept="application/pdf,.pdf" aria-label="Standings PDF"/>
 <button class="sm" id="impClear" type="button">Clear</button>
@@ -1582,6 +1589,19 @@ function planStandingsImport(rows){
   });
   return plan;
 }
+/* The report is the roster. A stored player is kept only when a row of the report matched it,
+   and a stored school only when the report lists that school, so nothing that is not part of
+   the report can appear on a leaderboard, a standing, a pairing or a profile. */
+function standingsOutside(plan){
+  var keepPlayers=[],keepTeams=[];
+  plan.items.forEach(function(it){if(it.player)keepPlayers.push(it.player);if(it.team)keepTeams.push(it.team)});
+  var players=[],teamsOut=[];
+  teams.forEach(function(t){
+    if(keepTeams.indexOf(t)<0)teamsOut.push(t);
+    t.p.forEach(function(p){if(keepPlayers.indexOf(p)<0)players.push({t:t,p:p})});
+  });
+  return {players:players,teams:teamsOut};
+}
 function renderImport(){
   var out=$("impOut");if(!out)return;
   if(!impParsed){out.innerHTML="";return}
@@ -1594,6 +1614,11 @@ function renderImport(){
   if(plan.newTeams.length)bits.push("new school: <b>"+plan.newTeams.map(esc).join(", ")+"</b>");
   if(plan.skipped)bits.push("<b>"+plan.skipped+"</b> skipped");
   if(mismatch)bits.push("<b>"+mismatch+"</b> score"+(mismatch===1?"":"s")+" differ from the round results");
+  var drop=standingsOutside(plan),notes=plan.warnings.slice();
+  if(drop.players.length)bits.push("<b>"+drop.players.length+"</b> player"+(drop.players.length===1?"":"s")+" outside the report");
+  if(drop.teams.length)bits.push("<b>"+drop.teams.length+"</b> school"+(drop.teams.length===1?"":"s")+" outside the report");
+  if(drop.teams.length)notes.push("Leaving the league with their players: "+drop.teams.map(function(t){return teamName(t)}).slice(0,10).join(", ")+(drop.teams.length>10?" and "+(drop.teams.length-10)+" more":"")+".");
+  else if(drop.players.length)notes.push(drop.players.length+" player"+(drop.players.length===1?"":"s")+" on the schools that stay are not in the report and will be removed.");
   var body=plan.items.map(function(it){
     var x=it.r;
     var tag=it.player?(it.team&&it.fromTeam&&it.team!==it.fromTeam?' <span class="mini-tag forfeit">Moves school</span>':''):' <span class="mini-tag sub">New</span>';
@@ -1606,10 +1631,10 @@ function renderImport(){
       '<td class="n"><b>'+f1(x.score)+'</b></td></tr>';
   }).join("");
   out.innerHTML='<p class="imp-sum">'+bits.join(" &middot; ")+'</p>'+
-    (plan.warnings.length?'<ul class="imp-warn">'+plan.warnings.slice(0,8).map(function(w){return '<li>'+esc(w)+'</li>'}).join("")+(plan.warnings.length>8?'<li>&hellip;</li>':'')+'</ul>':'')+
+    (notes.length?'<ul class="imp-warn">'+notes.slice(0,8).map(function(w){return '<li>'+esc(w)+'</li>'}).join("")+(notes.length>8?'<li>&hellip;</li>':'')+'</ul>':'')+
     '<div class="scroll flat" style="margin-top:14px"><table class="imp-table"><thead><tr><th>#</th><th>Player</th><th>School</th><th class="n">Rating</th><th>Grade</th><th>Rounds</th><th class="n">Points</th></tr></thead><tbody>'+(body||'<tr><td colspan="7" class="empty">No player rows were recognised.</td></tr>')+'</tbody></table></div>'+
     '<div class="imp-actions"><button class="primary" id="impApply" type="button"'+(plan.items.length?'':' disabled')+'>Import '+plan.items.length+' player'+(plan.items.length===1?'':'s')+'</button><span class="s">Saves to the shared league data after signing in.</span></div>'+
-    '<p class="note" style="margin:12px 0 0">Points come from the round results in the report (a win is 1, a draw or half-point bye is &frac12;); the printed score is used when it is there, and any difference is counted above. Ratings are the report&rsquo;s official ratings; live ratings still come from CheckChesser.</p>';
+    '<p class="note" style="margin:12px 0 0">Points come from the round results in the report (a win is 1, a draw or half-point bye is &frac12;); the printed score is used when it is there, and any difference is counted above. Ratings are the report&rsquo;s official ratings; live ratings still come from CheckChesser. After the import the roster matches the report exactly, so anyone it does not list is gone from the league until a later report includes them.</p>';
 }
 async function readStandingsFile(file){
   if(!file||impBusy)return;
@@ -1630,6 +1655,15 @@ function applyStandingsImport(){
   if(!impParsed||!impParsed.rows.length)return;
   var plan=planStandingsImport(impParsed.rows);
   if(!plan.items.length){toast("Nothing to import from that PDF");return}
+  var drop=standingsOutside(plan);
+  if((drop.players.length||drop.teams.length)&&typeof window.confirm==="function"){
+    var gone=drop.teams.map(function(t){return teamName(t)});
+    if(!window.confirm("The report becomes the league roster.\n\n"+
+      plan.items.length+" player"+(plan.items.length===1?"":"s")+" will be added or updated.\n"+
+      drop.players.length+" player"+(drop.players.length===1?"":"s")+" that the report does not list will be removed"+(gone.length?" ("+gone.length+" school"+(gone.length===1?"":"s")+" leave the league)":"")+".\n\n"+
+      (gone.length?"Removed schools: "+gone.slice(0,10).join(", ")+(gone.length>10?" and "+(gone.length-10)+" more":"")+"\n\n":"")+
+      "Continue?"))return;
+  }
   var added=0,updated=0;
   plan.items.forEach(function(it){
     var r=it.r,target=it.team||pdfTeamFor(r.team,true);
@@ -1652,13 +1686,18 @@ function applyStandingsImport(){
     }
     updated++;
   });
+  // Everything the report does not list leaves the league; a new report also starts a new
+  // round, so last round's attendance marks are cleared.
+  drop.players.forEach(function(x){var at=x.t.p.indexOf(x.p);if(at>=0)x.t.p.splice(at,1)});
+  drop.teams.forEach(function(t){var at=teams.indexOf(t);if(at>=0)teams.splice(at,1)});
+  teams.forEach(function(t){t.p.forEach(function(p){if(p.avail!==undefined)delete p.avail})});
   applyDefaultRosterStatuses();
   round=Math.max(round,impParsed.rounds||0);
-  importSummary="Standings PDF: "+added+" added \u00b7 "+updated+" updated"+(plan.newTeams.length?" \u00b7 "+plan.newTeams.length+" new school(s)":"")+".";
+  importSummary="Standings PDF: "+added+" added \u00b7 "+updated+" updated"+(plan.newTeams.length?" \u00b7 "+plan.newTeams.length+" new school(s)":"")+(drop.players.length?" \u00b7 "+drop.players.length+" removed":"")+".";
   impParsed=null;$("impOut").innerHTML="";
   reattachProfile();
   save();
-  toast("Imported "+added+" new and "+updated+" updated player"+(added+updated===1?"":"s"));
+  toast("Imported "+added+" new and "+updated+" updated player"+(added+updated===1?"":"s")+(drop.players.length?" \u00b7 "+drop.players.length+" removed":""));
   commit(false);
 }
 function deltaPill(d){
@@ -1864,7 +1903,7 @@ function playerPool(){
   var pool=[];
   teams.forEach(function(t){
     t.p.forEach(function(p){
-      if(p.s!=="In Team")return;
+      if(p.s!=="In Team"||p.avail===false)return;
       pool.push({p:p,t:t,name:p.n,pts:num(p.pt),r:curRating(p)});
     });
   });
@@ -1917,6 +1956,38 @@ function playerPairs(){
   all.forEach(function(x){if(mates(x[0],x[1]))unresolved++});
   return {groups:groups,bye:carry,pool:pool.length,unresolved:unresolved};
 }
+/* Attendance for the next round. A player marked as not playing stays in the league with
+   their points and rating and is simply left out of the pairing pool, so every table, the
+   bye and the pool count all follow the same list. The mark is saved with the league data. */
+function availBtn(e){
+  var ix=profIdx(e.p);
+  if(!ix)return"";
+  return '<button class="sm avail-btn" type="button" data-avail="'+escAttr(ix)+'"'+(unlocked?'':' disabled')+' title="'+(unlocked?"Mark "+escAttr(e.p.n)+" as not playing this round":"Unlock administrator editing to change who is playing this round")+'">Not playing</button>';
+}
+function absentEntries(){
+  var out=[];
+  teams.forEach(function(t){t.p.forEach(function(p){if(p.s==="In Team"&&p.avail===false)out.push({p:p,t:t,pts:num(p.pt),r:curRating(p)})})});
+  return out.sort(function(a,b){return b.pts-a.pts||a.p.n.localeCompare(b.p.n)});
+}
+function availRows(){
+  var list=absentEntries();
+  if(!list.length)return"";
+  return '<div class="card"><h3><span>Not playing this round</span><span class="s">'+list.length+' player'+(list.length===1?"":"s")+'</span></h3><div class="avail-list">'+
+    list.map(function(e){
+      return '<div class="avail-row"><span>'+pLink(e.p)+' <span class="s">'+esc(teamName(e.t))+' &middot; '+f1(e.pts)+' pts &middot; '+(e.r||'Unrated')+'</span></span><button class="sm" type="button" data-avail="'+escAttr(profIdx(e.p))+'">Playing</button></div>';
+    }).join("")+
+    '</div><p class="note" style="margin:10px 0 0">These players are left out of the predicted pairings and from the bye. Choose Playing when they confirm they can attend.</p></div>';
+}
+function toggleAvail(ix){
+  need(function(){
+    var pp=String(ix).split(":"),t=teams[+pp[0]],p=t&&t.p[+pp[1]];
+    if(!p)return;
+    var back=p.avail===false;
+    if(back)delete p.avail;else p.avail=false;
+    save();
+    toast(back?p.n+" is playing this round":p.n+" is not playing this round");
+  });
+}
 function renderPairings(){
   $("swTitle").textContent="Predicted pairings · Round "+(round+1);
   var res=playerPairs(),table=0,cards="";
@@ -1926,22 +1997,23 @@ function renderPairings(){
       table++;
       var a=pr[0],b=pr[1],q=boardProbs(a.p,b.p),resT=resTxt(q.w,q.d,q.l),aWins=resT.c==="w",bWins=resT.c==="l",t3=pct3(q.w,q.d,q.l);
       return '<tr><td><span class="badge">'+table+'</span></td>'+
-        '<td class="'+(aWins?'fav':'')+'"><div>'+pLink(a.p)+(topSet.has(a.p)?topBadge():'')+'</div><div class="s">'+esc(teamName(a.t))+' &middot; '+f1(a.pts)+' pts &middot; '+(a.r||'Unrated')+'</div></td>'+
+        '<td class="'+(aWins?'fav':'')+'"><div>'+pLink(a.p)+(topSet.has(a.p)?topBadge():'')+'</div><div class="s">'+esc(teamName(a.t))+' &middot; '+f1(a.pts)+' pts &middot; '+(a.r||'Unrated')+'</div>'+availBtn(a)+'</td>'+
         '<td><div class="bcell"><span class="res '+resT.c+'">'+resT.t+'</span>'+
 '<div class="mini-bar" role="img" aria-label="White wins '+t3[0]+'%, draw '+t3[1]+'%, Black wins '+t3[2]+'%"><i class="mw" style="width:'+t3[0]+'%"></i><i class="md" style="width:'+t3[1]+'%"></i><i class="ml" style="width:'+t3[2]+'%"></i></div>'+
 '<span class="wdl">W <b>'+t3[0]+'</b> · D <b>'+t3[1]+'</b> · L <b>'+t3[2]+'</b></span></div></td>'+
-        '<td class="'+(bWins?'fav':'')+'"><div>'+pLink(b.p)+(topSet.has(b.p)?topBadge():'')+'</div><div class="s">'+esc(teamName(b.t))+' &middot; '+f1(b.pts)+' pts &middot; '+(b.r||'Unrated')+'</div></td></tr>';
+        '<td class="'+(bWins?'fav':'')+'"><div>'+pLink(b.p)+(topSet.has(b.p)?topBadge():'')+'</div><div class="s">'+esc(teamName(b.t))+' &middot; '+f1(b.pts)+' pts &middot; '+(b.r||'Unrated')+'</div>'+availBtn(b)+'</td></tr>';
     }).join("");
     cards+='<div class="card q" style="--i:'+gi+'"><h3>'+f1(g.pts)+'-point group</h3><div class="scroll flat"><table class="pair-table"><thead><tr><th>Table</th><th>Player</th><th>Predicted result</th><th>Player</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   });
   if(!table){
-    $("pairOut").innerHTML='<div class="empty">At least two players with status &ldquo;In Team&rdquo; are needed for pairings.</div>';
+    $("pairOut").innerHTML='<div class="empty">At least two players with status &ldquo;In Team&rdquo; are needed for pairings.</div><div class="stack">'+availRows()+'</div>';
     return;
   }
-  var bye=res.bye?'<div class="card"><h3>Bye</h3><p class="note" style="margin:0">'+pLink(res.bye.p)+' <span class="s">'+esc(teamName(res.bye.t))+' &middot; '+f1(res.bye.pts)+' pts</span> has no opponent this round because the player pool is odd.</p></div>':'';
+  var absent=absentEntries();
+  var bye=res.bye?'<div class="card"><h3>Bye</h3><p class="note" style="margin:0">'+pLink(res.bye.p)+' <span class="s">'+esc(teamName(res.bye.t))+' &middot; '+f1(res.bye.pts)+' pts</span> has no opponent this round because the player pool is odd.</p>'+availBtn(res.bye)+'</div>':'';
   var warn=res.unresolved?'<p class="note">'+res.unresolved+' table(s) still pair teammates because no alternate opponent was available; a real draw would reshuffle those players.</p>':'';
-  $("pairOut").innerHTML=MODEL_NOTE+'<div class="stack">'+cards+bye+'</div>'+warn+
-    '<p class="note">These pairings and their results are <b>predictions</b>, not an official draw. They are built from each player&rsquo;s own league points ('+res.pool+' players in the pool): players are grouped by points, then the top half of each group plays the bottom half by rating, and opponents are swapped where needed so teammates do not meet. The first-listed player on a table is read as White, so 1&ndash;0 and 0&ndash;1 are stated from their side; team colours are set separately by the T-4 rule.</p>';
+  $("pairOut").innerHTML=MODEL_NOTE+'<div class="stack">'+cards+bye+availRows()+'</div>'+warn+
+    '<p class="note">These pairings and their results are <b>predictions</b>, not an official draw. They are built from each player&rsquo;s own league points ('+res.pool+' players in the pool'+(absent.length?", "+absent.length+" marked not playing":'')+'): players are grouped by points, then the top half of each group plays the bottom half by rating, and opponents are swapped where needed so teammates do not meet. The first-listed player on a table is read as White, so 1&ndash;0 and 0&ndash;1 are stated from their side; team colours are set separately by the T-4 rule. Mark a player &ldquo;Not playing&rdquo; to leave them out, and &ldquo;Playing&rdquo; to add them back; attendance is saved with the league data and clears when a new standings report is imported.</p>';
 }
 
 /* ---------- player profile ---------- */
@@ -2365,9 +2437,10 @@ function editRound(){
 $("roundBtn").onclick=function(){need(editRound)};
 function gotoTab(id){show(id);try{localStorage.setItem("league-tab",id)}catch(e){}}
 document.addEventListener("click",function(e){
-  var el=e.target.closest("[data-t],[data-del],[data-delteam],[data-addp],[data-pick],[data-prof],[data-openm],[data-pftab],[data-team],[data-ffclear],#tpClose,#pfClose,#pfSave");
+  var el=e.target.closest("[data-t],[data-del],[data-delteam],[data-addp],[data-pick],[data-prof],[data-openm],[data-pftab],[data-team],[data-ffclear],[data-avail],#tpClose,#pfClose,#pfSave");
   if(!el||el.tagName==="INPUT")return;
   if(el.id==="tpClose"){closeTeam();return}
+  if(el.dataset.avail!==undefined){toggleAvail(el.dataset.avail);return}
 if(el.dataset.team!==undefined){e.preventDefault();if(profileRef)closeProfile();openTeam(+el.dataset.team);return}
 if(el.dataset.ffclear!==undefined){
   if(el.dataset.ffclear==="t"){tf={q:"",rating:"",top:"",grade:"",style:"",time:""};renderTeam()}
