@@ -351,6 +351,19 @@ select.stsel:disabled{cursor:not-allowed}
 .srow input{height:34px;border-radius:var(--r-s)}
 .sdir-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 24px;color:var(--muted);font-size:13px}
 
+/* standings PDF import */
+.imp.over{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.imp .filters{margin:14px 0 0}
+.imp input[type=file]{flex:1 1 320px;width:auto;height:auto;padding:8px 12px;font-size:13.5px;border-radius:var(--r-s)}
+.imp input[type=file]::file-selector-button{height:30px;margin-right:12px;padding:0 14px;font:inherit;font-size:13px;color:var(--text);background:var(--raised);border:1px solid var(--line-2);border-radius:999px;cursor:pointer}
+.imp input[type=file]::file-selector-button:hover{background:var(--hover)}
+.imp-sum{margin:16px 0 0;font-size:13.5px;color:var(--muted)}
+.imp-sum b{color:var(--text)}
+.imp-warn{margin:10px 0 0;padding-left:18px;font-size:13px;color:var(--unsure)}
+.imp-actions{display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.imp-table{min-width:760px}
+.imp-table th,.imp-table td{padding:11px 14px}
+
 
 /* 9. Team standings
    -------------------------------------------------------------------------- */
@@ -737,6 +750,15 @@ select.stsel:disabled{cursor:not-allowed}
 <section class="hidden" id="manage">
 <div class="section-heading"><h2>Manage players &amp; teams</h2><button class="primary" id="addTeamBtn" type="button">+ Add team</button></div>
 <p class="note">Search for a team to view and edit its roster. Editing requires administrator sign-in; changes are saved from the bar at the bottom.</p>
+<div class="card imp" id="importCard">
+<h3><span>Import standings PDF</span><span class="s">Round results from the league report</span></h3>
+<p class="note s" style="margin:0">Choose or drop the standings PDF and check the preview. Each player&rsquo;s school, US Chess ID, rating, grade, round results and score are read from the file; nothing is written until you press Import, which needs administrator sign-in.</p>
+<div class="filters">
+<input id="impFile" type="file" accept="application/pdf,.pdf" aria-label="Standings PDF"/>
+<button class="sm" id="impClear" type="button">Clear</button>
+</div>
+<div id="impOut"></div>
+</div>
 <div class="card sdir" id="schoolDir"></div>
 <div class="search manage-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input aria-label="Search teams to edit" id="manageSearch" placeholder="Search for a team to edit" type="search" autocomplete="off"/></div>
 <div id="manageOut" class="stack"></div>
@@ -1377,6 +1399,268 @@ function importCheckChesser(data){
   });
   return summary;
 }
+/* ---------- standings PDF import ----------
+   The league report is a PDF table, and its text cannot be read reliably by copying it:
+   blank cells disappear and the columns run together, so a name can no longer be told
+   apart from the cell beside it. The file is therefore read with pdf.js and rebuilt row by
+   row from the text positions: items on the same baseline form one row, and each cell is
+   recognised by what it holds - rank, name, US Chess ID, rating, school, grade, state,
+   round result, score and tiebreaks. Round columns are numbered from their x position, so
+   a missed round is never shifted into the wrong column. Nothing is written until the
+   preview is confirmed. */
+var PDFJS_SRC="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs";
+var PDFJS_WORKER="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+var PDF_ROUND=/^([WLDHUFXBZ])[\s\-–—]*(\d{0,3})$/;
+var PDF_RESULT_POINTS={W:1,X:1,B:1,D:0.5,H:0.5,L:0,F:0,U:0,Z:0};
+// Report abbreviations, each with every name the site might already store for that school:
+// the saved data uses short names ("Central", "SLA", "Boys Latin") while the report prints
+// its own abbreviation, so both are listed here and a school is never split in two.
+var PDF_TEAMS=[
+ {label:"Central High School",keys:["CENTRAL","CENTRAL HIGH","CENTRAL HIGH SCHOOL"]},
+ {label:"Julia R. Masterman",keys:["MASTERMAN","JULIA R MASTERMAN","JULIA R MASTERMAN HIGH SCHOOL"]},
+ {label:"George Washington High School",keys:["GWHS","WASHINGTON","GEORGE WASHINGTON","GEORGE WASHINGTON HIGH SCHOOL"]},
+ {label:"Northeast High School",keys:["NEHS","NORTHEAST","NORTHEAST HIGH SCHOOL"]},
+ {label:"Academy at Palumbo",keys:["PALUMBO","ACADEMY AT PALUMBO"]},
+ {label:"Franklin Learning Center",keys:["FLC","FRANKLIN","FRANKLIN LEARNING CENTER"]},
+ {label:"Swenson",keys:["SWENSON","SWENSON A T","SWENSON ARTS TECHNOLOGY"]},
+ {label:"Bodine",keys:["BODINE"]},
+ {label:"BoysLatin",keys:["BOYSLATIN","BOYS LATIN","BOYS LATIN CHARTER"]},
+ {label:"Science Leadership Academy",keys:["SLA","SCIENCE LEADERSHIP ACADEMY"]},
+ {label:"G.W Carver High School",keys:["CARVER","GW CARVER","G W CARVER"]},
+ {label:"New Foundations",keys:["NEW FOUNDATIONS","NFHS","NEW FOUNDATIONS CHARTER"]},
+ {label:"Jules E. Mastbaum",keys:["MASTBAUM"]},
+ {label:"Lincoln",keys:["LINCOLN"]},
+ {label:"Workshop",keys:["WORKSHOP"]}
+];
+var pdfjsPromise=null,impParsed=null,impBusy=false;
+function pdfTeamKey(v){return String(v==null?"":v).toUpperCase().replace(/[^A-Z0-9 ]+/g," ").replace(/\s+/g," ").trim()}
+function pdfTeamEntry(v){
+  var k=pdfTeamKey(v);if(!k)return null;
+  return PDF_TEAMS.filter(function(e){return pdfTeamKey(e.label)===k||e.keys.indexOf(k)>=0})[0]||null;
+}
+function pdfTeamName(v){var e=pdfTeamEntry(v);return e?e.label:""}
+// An existing school is matched by any of its stored names; only a school the site does not
+// have at all is created, and it is created with the full name.
+function pdfTeamFor(v,create){
+  var entry=pdfTeamEntry(v),wanted=entry?entry.keys.concat([pdfTeamKey(entry.label)]):[pdfTeamKey(v)];
+  var found=teams.filter(function(t){
+    return [t.n,t.official,t.display].some(function(n){var k=pdfTeamKey(n);return !!k&&wanted.indexOf(k)>=0});
+  })[0];
+  if(found)return found;
+  if(!create)return null;
+  var name=entry?entry.label:String(v==null?"":v).trim();
+  if(!name)return null;
+  var made={n:name,official:name,display:"",p:[]};teams.push(made);return made;
+}
+function loadPdfJs(){
+  if(!pdfjsPromise)pdfjsPromise=import(PDFJS_SRC).then(function(m){
+    try{m.GlobalWorkerOptions.workerSrc=PDFJS_WORKER}catch(e){}
+    return m;
+  }).catch(function(){pdfjsPromise=null;throw new Error("the PDF reader could not be loaded. Check the internet connection and try again.")});
+  return pdfjsPromise;
+}
+// One row of the report -> one player. Cells are recognised by their content, not by their
+// position, so a blank cell in the middle of the table changes nothing.
+function parseStandingsRow(items){
+  var out={rank:0,name:"",id:"",rating:0,rated:false,team:"",grade:"",state:"",rounds:[],numbers:[]},words=[];
+  items.forEach(function(it,ii){
+    String(it.s==null?"":it.s).split(/\s+/).filter(Boolean).forEach(function(tok,tj){
+      if(ii===0&&tj===0&&!out.rank&&/^\d{1,3}$/.test(tok)){out.rank=+tok;return}
+      if(!out.id&&/^\d{5,9}$/.test(tok)){out.id=tok;return}
+      if(!out.rated&&/^unr\.?$/i.test(tok)){out.rated=true;out.rating=0;return}
+      var rm=tok.match(PDF_ROUND);
+      if(rm){out.rounds.push({code:rm[1],opp:rm[2]?+rm[2]:null,txt:tok,x:it.x});return}
+      var school=pdfTeamName(tok);
+      if(!out.team&&school){out.team=school;return}
+      if(!out.rated&&/^\d{3,4}$/.test(tok)){out.rated=true;out.rating=+tok;return}
+      if(!out.grade&&/^(9|10|11|12)$/.test(tok)){out.grade=tok;return}
+      if(!out.state&&/^[A-Z]{2}$/.test(tok)){out.state=tok;return}
+      if(/^\d+(\.\d+)?$/.test(tok)){
+        // "W" and its opponent can arrive as two cells; that number is not a score.
+        var lastRound=out.rounds[out.rounds.length-1];
+        if(lastRound&&lastRound.opp===null&&tok.indexOf(".")<0&&Math.abs(it.x-lastRound.x)<12){lastRound.opp=+tok;lastRound.txt+=tok;return}
+        out.numbers.push({v:+tok,x:it.x});return;
+      }
+      words.push(tok);
+    });
+  });
+  out.name=words.join(" ").replace(/\s+/g," ").trim();
+  if(!out.name||/^#+$/.test(out.name)||(!out.id&&!out.team&&!out.rated))return null;
+  // Left to right after the round columns: the score first, then the tiebreaks.
+  out.numbers.sort(function(a,b){return a.x-b.x});
+  out.total=out.numbers.length?out.numbers[0].v:null;
+  out.tiebreaks=out.numbers.slice(1).map(function(n){return n.v});
+  out.points=0;
+  out.rounds.forEach(function(g){out.points+=(PDF_RESULT_POINTS[g.code]||0)});
+  out.points=Math.round(out.points*10)/10;
+  // The printed score is authoritative (it includes byes); the round results are the check.
+  out.score=out.total!==null?Math.round(out.total*10)/10:out.points;
+  return out;
+}
+async function extractStandingsRows(bytes){
+  var pdf=await loadPdfJs();
+  var doc=await pdf.getDocument({data:bytes}).promise,rows=[];
+  for(var p=1;p<=doc.numPages;p++){
+    var page=await doc.getPage(p),tc=await page.getTextContent(),items=[];
+    (tc.items||[]).forEach(function(it){
+      var s=String(it.str==null?"":it.str).replace(/\s+/g," ").trim();
+      if(!s||!it.transform)return;
+      items.push({s:s,x:it.transform[4],y:it.transform[5]});
+    });
+    items.sort(function(a,b){return b.y-a.y||a.x-b.x});
+    var lines=[];
+    items.forEach(function(it){
+      var ln=lines[lines.length-1];
+      if(ln&&Math.abs(ln.y-it.y)<=3)ln.items.push(it);
+      else lines.push({y:it.y,items:[it]});
+    });
+    lines.forEach(function(ln){
+      ln.items.sort(function(a,b){return a.x-b.x});
+      var r=parseStandingsRow(ln.items);
+      if(r)rows.push(r);
+    });
+    try{page.cleanup()}catch(e){}
+  }
+  return rows;
+}
+/* Round columns are the distinct x positions of the round results across the whole file,
+   so a player who missed round 1 still has their round 2 result in column 2. */
+function assignRoundColumns(rows){
+  var xs=[];
+  rows.forEach(function(r){r.rounds.forEach(function(g){xs.push(g.x)})});
+  xs.sort(function(a,b){return a-b});
+  var cols=[];
+  xs.forEach(function(x){var last=cols.length?cols[cols.length-1]:null;if(last===null||x-last>8)cols.push(x)});
+  rows.forEach(function(r){
+    var byRound={};
+    r.rounds.forEach(function(g){
+      var best=0,dist=Infinity;
+      cols.forEach(function(c,i){var d=Math.abs(c-g.x);if(d<dist){dist=d;best=i}});
+      var n=cols.length?best+1:1;
+      if(!byRound[n])byRound[n]=g;
+    });
+    r.byRound=byRound;
+  });
+  return cols.length;
+}
+function titleCaseName(v){
+  var s=String(v||"").replace(/\s+/g," ").trim();
+  if(s!==s.toUpperCase())return s;
+  return s.toLowerCase().replace(/(^|[\s'\-])([a-z])/g,function(m,a,b){return a+b.toUpperCase()});
+}
+/* A name that matches in the report is trusted over an ID that disagrees, because a stored
+   ID can come from an earlier lookup that attached the wrong one. The caller is told how
+   the player was found, so a disagreement can be reported instead of silently rewriting it. */
+function findStandingsPlayer(r,target){
+  var nm=normalizePlayerName(r.name),byId=[],byName=[];
+  teams.forEach(function(t){t.p.forEach(function(p){
+    if(r.id&&p.uscfId&&String(p.uscfId)===r.id)byId.push({t:t,p:p});
+    if(nm&&normalizePlayerName(p.n)===nm)byName.push({t:t,p:p});
+  })});
+  var sameName=byId.filter(function(h){return normalizePlayerName(h.p.n)===nm})[0];
+  if(sameName)return {t:sameName.t,p:sameName.p,by:"id"};
+  var onTeam=byName.filter(function(h){return target&&h.t===target});
+  if(onTeam.length===1)return {t:onTeam[0].t,p:onTeam[0].p,by:"name"};
+  if(byName.length===1)return {t:byName[0].t,p:byName[0].p,by:"name"};
+  if(byId.length===1)return {t:byId[0].t,p:byId[0].p,by:"id"};
+  return null;
+}
+// A dry run: works out what the import would do without touching the league data.
+function planStandingsImport(rows){
+  var plan={items:[],added:0,updated:0,moved:0,skipped:0,newTeams:[],warnings:[],ids:{}};
+  (rows||[]).forEach(function(r){
+    if(!r.name||!r.team){plan.skipped++;return}
+    if(r.id&&plan.ids[r.id]){plan.skipped++;plan.warnings.push("US Chess ID "+r.id+" appears twice; kept "+plan.ids[r.id]+" and skipped "+r.name+".");return}
+    var target=pdfTeamFor(r.team,false),hit=findStandingsPlayer(r,target);
+    if(!target&&!hit&&!pdfTeamEntry(r.team)){plan.skipped++;plan.warnings.push("No school matches \u201c"+r.team+"\u201d for "+r.name+", so that player was skipped.");return}
+    if(r.id)plan.ids[r.id]=r.name;
+    if(!target&&plan.newTeams.indexOf(r.team)<0)plan.newTeams.push(r.team);
+    if(hit&&hit.by==="name"&&r.id&&hit.p.uscfId&&String(hit.p.uscfId)!==r.id)plan.warnings.push(hit.p.n+": kept the stored US Chess ID "+hit.p.uscfId+"; the report lists "+r.id+".");
+    if(hit&&hit.by==="id"&&normalizePlayerName(hit.p.n)!==normalizePlayerName(r.name))plan.warnings.push("US Chess ID "+r.id+" is stored for "+hit.p.n+", not "+r.name+"; matched by ID.");
+    plan.items.push({r:r,team:target,player:hit?hit.p:null,fromTeam:hit?hit.t:null});
+    if(hit){plan.updated++;if(target&&hit.t!==target)plan.moved++}else plan.added++;
+  });
+  return plan;
+}
+function renderImport(){
+  var out=$("impOut");if(!out)return;
+  if(!impParsed){out.innerHTML="";return}
+  var plan=planStandingsImport(impParsed.rows),rows=impParsed.rows,mismatch=0;
+  rows.forEach(function(x){if(x.total!==null&&Math.abs(x.total-x.points)>0.05)mismatch++});
+  var bits=["<b>"+rows.length+"</b> player"+(rows.length===1?"":"s")+" read from "+esc(impParsed.name||"the PDF"),
+    "<b>"+plan.added+"</b> new","<b>"+plan.updated+"</b> updated",
+    "<b>"+impParsed.rounds+"</b> round"+(impParsed.rounds===1?"":"s")+" completed"];
+  if(plan.moved)bits.push("<b>"+plan.moved+"</b> changing school");
+  if(plan.newTeams.length)bits.push("new school: <b>"+plan.newTeams.map(esc).join(", ")+"</b>");
+  if(plan.skipped)bits.push("<b>"+plan.skipped+"</b> skipped");
+  if(mismatch)bits.push("<b>"+mismatch+"</b> score"+(mismatch===1?"":"s")+" differ from the round results");
+  var body=plan.items.map(function(it){
+    var x=it.r;
+    var tag=it.player?(it.team&&it.fromTeam&&it.team!==it.fromTeam?' <span class="mini-tag forfeit">Moves school</span>':''):' <span class="mini-tag sub">New</span>';
+    var team=it.team?teamName(it.team):(it.fromTeam?teamName(it.fromTeam):x.team);
+    return '<tr><td class="n">'+x.rank+'</td><td><b>'+esc(it.player?it.player.n:titleCaseName(x.name))+'</b>'+tag+'</td>'+
+      '<td>'+esc(team||"—")+'</td>'+
+      '<td class="n">'+(x.rated?(x.rating||"Unrated"):"—")+'</td>'+
+      '<td>'+esc(x.grade||"—")+'</td>'+
+      '<td>'+esc(x.rounds.map(function(g){return g.txt}).join(" "))+'</td>'+
+      '<td class="n"><b>'+f1(x.score)+'</b></td></tr>';
+  }).join("");
+  out.innerHTML='<p class="imp-sum">'+bits.join(" &middot; ")+'</p>'+
+    (plan.warnings.length?'<ul class="imp-warn">'+plan.warnings.slice(0,8).map(function(w){return '<li>'+esc(w)+'</li>'}).join("")+(plan.warnings.length>8?'<li>&hellip;</li>':'')+'</ul>':'')+
+    '<div class="scroll flat" style="margin-top:14px"><table class="imp-table"><thead><tr><th>#</th><th>Player</th><th>School</th><th class="n">Rating</th><th>Grade</th><th>Rounds</th><th class="n">Points</th></tr></thead><tbody>'+(body||'<tr><td colspan="7" class="empty">No player rows were recognised.</td></tr>')+'</tbody></table></div>'+
+    '<div class="imp-actions"><button class="primary" id="impApply" type="button"'+(plan.items.length?'':' disabled')+'>Import '+plan.items.length+' player'+(plan.items.length===1?'':'s')+'</button><span class="s">Saves to the shared league data after signing in.</span></div>'+
+    '<p class="note" style="margin:12px 0 0">Points come from the round results in the report (a win is 1, a draw or half-point bye is &frac12;); the printed score is used when it is there, and any difference is counted above. Ratings are the report&rsquo;s official ratings; live ratings still come from CheckChesser.</p>';
+}
+async function readStandingsFile(file){
+  if(!file||impBusy)return;
+  if(!/\.pdf$/i.test(file.name||"")&&file.type!=="application/pdf"){$("impOut").innerHTML='<p class="note err">Choose the standings PDF file.</p>';return}
+  impBusy=true;
+  $("impOut").innerHTML='<p class="note">Reading '+esc(file.name||"the PDF")+'&hellip;</p>';
+  try{
+    var rows=await extractStandingsRows(new Uint8Array(await file.arrayBuffer()));
+    if(!rows.length)throw new Error("no player rows were found. Use the league standings report \u2014 the pages with #, Name, ID and Rating columns.");
+    impParsed={rows:rows,rounds:assignRoundColumns(rows),name:file.name||""};
+    renderImport();
+  }catch(e){
+    impParsed=null;
+    $("impOut").innerHTML='<p class="note err">Could not read that PDF: '+esc(e&&e.message?e.message:String(e))+'</p>';
+  }finally{impBusy=false}
+}
+function applyStandingsImport(){
+  if(!impParsed||!impParsed.rows.length)return;
+  var plan=planStandingsImport(impParsed.rows);
+  if(!plan.items.length){toast("Nothing to import from that PDF");return}
+  var added=0,updated=0;
+  plan.items.forEach(function(it){
+    var r=it.r,target=it.team||pdfTeamFor(r.team,true);
+    if(!target)return;
+    var p=it.player;
+    if(!p){
+      var fresh={n:titleCaseName(r.name),r:r.rated?r.rating:0,pt:Math.round(r.score*10)/10};
+      if(r.id)fresh.uscfId=r.id;
+      if(r.grade)fresh.grade=r.grade;
+      target.p.push(fresh);added++;return;
+    }
+    if(r.id&&!p.uscfId)p.uscfId=r.id;
+    if(r.rated&&r.rating>0)p.r=r.rating;
+    if(r.grade)p.grade=r.grade;
+    p.pt=Math.round(r.score*10)/10;
+    if(it.fromTeam&&target!==it.fromTeam){
+      var at=it.fromTeam.p.indexOf(p);
+      if(at>=0)it.fromTeam.p.splice(at,1);
+      if(target.p.indexOf(p)<0)target.p.push(p);
+    }
+    updated++;
+  });
+  applyDefaultRosterStatuses();
+  round=Math.max(round,impParsed.rounds||0);
+  importSummary="Standings PDF: "+added+" added \u00b7 "+updated+" updated"+(plan.newTeams.length?" \u00b7 "+plan.newTeams.length+" new school(s)":"")+".";
+  impParsed=null;$("impOut").innerHTML="";
+  reattachProfile();
+  save();
+  toast("Imported "+added+" new and "+updated+" updated player"+(added+updated===1?"":"s"));
+  commit(false);
+}
 function deltaPill(d){
   if(d===null||!Number.isFinite(d))return"";
   var tri=function(p){return '<svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true"><path d="'+p+'" fill="currentColor"/></svg>'};
@@ -2010,6 +2294,18 @@ $("addTeamBtn").onclick=function(){need(function(){openForm("team")})};
 $("refreshLiveBtn").onclick=function(){refreshLiveRatings()};
 ["rankSearch","rankSchool"].forEach(function(id){var el=$(id);if(el)el.addEventListener(id==="rankSearch"?"input":"change",function(){renderPlayers()})});
 $("manageSearch").addEventListener("input",function(){renderManage()});
+
+/* ---------- standings import controls ---------- */
+(function(){
+  var file=$("impFile"),card=$("importCard"),out=$("impOut");
+  if(!file||!card||!out)return;
+  file.addEventListener("change",function(){var f=file.files&&file.files[0];file.value="";readStandingsFile(f)});
+  $("impClear").addEventListener("click",function(){impParsed=null;out.innerHTML="";file.value=""});
+  out.addEventListener("click",function(e){var b=e.target.closest("#impApply");if(b&&!b.disabled)need(function(){applyStandingsImport()})});
+  ["dragenter","dragover"].forEach(function(ev){card.addEventListener(ev,function(e){e.preventDefault();card.classList.add("over")})});
+  ["dragleave","drop"].forEach(function(ev){card.addEventListener(ev,function(e){e.preventDefault();card.classList.remove("over")})});
+  card.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)readStandingsFile(f)});
+})();
 
 document.querySelectorAll(".sort-head").forEach(function(b){b.addEventListener("click",function(){var current=document.body.dataset.rankSort||"points";if(b.dataset.sort===current){document.body.dataset.rankDir=document.body.dataset.rankDir==="asc"?"desc":"asc";}else{document.body.dataset.rankSort=b.dataset.sort;document.body.dataset.rankDir="desc";}renderPlayers()})});
 $("fCancel").onclick=function(){$("fModal").classList.remove("show")};
